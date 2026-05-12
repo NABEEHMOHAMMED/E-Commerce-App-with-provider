@@ -98,7 +98,7 @@ class ProductProvider extends ChangeNotifier {
         await _saveToDisk();
         _buildCategoriesFromProducts();
         debugPrint(
-          '✅ Products fetched from API and cached. Count: ${_allProducts.length}',
+          ' Products fetched from API and cached. Count: ${_allProducts.length}',
         );
       } else {
         // Offline: load from cache
@@ -111,8 +111,7 @@ class ProductProvider extends ChangeNotifier {
         );
       }
     } catch (e) {
-      // Network error occurred: try loading from cache
-      debugPrint('❌ API Error: $e');
+      debugPrint(' API Error: $e');
       await _loadFromDisk();
       if (showOfflineMessage) {
         _errorMessage = 'Offline mode: Showing cached data';
@@ -135,7 +134,7 @@ class ProductProvider extends ChangeNotifier {
       );
 
       await file.writeAsString(jsonString);
-      debugPrint('💾 Products cached successfully to: ${file.path}');
+      debugPrint(' Products cached successfully to: ${file.path}');
     } catch (e) {
       debugPrint('Error caching products: $e');
     }
@@ -155,13 +154,13 @@ class ProductProvider extends ChangeNotifier {
 
         _buildCategoriesFromProducts();
         debugPrint(
-          '📂 Products loaded from cache. Count: ${_allProducts.length}',
+          ' Products loaded from cache. Count: ${_allProducts.length}',
         );
       } else {
         _errorMessage = 'No cached data available. Please connect to internet.';
         _allProducts = [];
         _categories = [];
-        debugPrint('⚠️ No cache file found.');
+        debugPrint(' No cache file found.');
       }
     } catch (e) {
       debugPrint('Error loading products from cache: $e');
