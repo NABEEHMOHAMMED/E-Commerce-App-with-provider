@@ -61,11 +61,17 @@ class ProductProvider extends ChangeNotifier {
 
   // ─── Initialize Connectivity Listener ───────────────────────────────
   Future<void> _initConnectivity() async {
-    final connectivityResult = await Connectivity().checkConnectivity();
-    _isConnected = connectivityResult != ConnectivityResult.none;
+    final dynamic result = await Connectivity().checkConnectivity();
+    final List<ConnectivityResult> results = result is List
+        ? List<ConnectivityResult>.from(result)
+        : [result as ConnectivityResult];
+    _isConnected = !results.contains(ConnectivityResult.none);
 
-    Connectivity().onConnectivityChanged.listen((ConnectivityResult result) {
-      _isConnected = result != ConnectivityResult.none;
+    Connectivity().onConnectivityChanged.listen((dynamic result) {
+      final List<ConnectivityResult> results = result is List
+          ? List<ConnectivityResult>.from(result)
+          : [result as ConnectivityResult];
+      _isConnected = !results.contains(ConnectivityResult.none);
       notifyListeners();
     });
   }
@@ -80,22 +86,29 @@ class ProductProvider extends ChangeNotifier {
 
     try {
       // Check connectivity first
-      final connectivityResult = await Connectivity().checkConnectivity();
-      _isConnected = connectivityResult != ConnectivityResult.none;
+      final dynamic result = await Connectivity().checkConnectivity();
+      final List<ConnectivityResult> results = result is List
+          ? List<ConnectivityResult>.from(result)
+          : [result as ConnectivityResult];
+      _isConnected = !results.contains(ConnectivityResult.none);
 
       if (_isConnected) {
         // Online: fetch from API and cache the response
         _allProducts = await ApiService.fetchProducts();
         await _saveToDisk();
         _buildCategoriesFromProducts();
-        debugPrint('✅ Products fetched from API and cached. Count: ${_allProducts.length}');
+        debugPrint(
+          '✅ Products fetched from API and cached. Count: ${_allProducts.length}',
+        );
       } else {
         // Offline: load from cache
         await _loadFromDisk();
         if (showOfflineMessage) {
           _errorMessage = 'Offline mode: Showing cached data';
         }
-        debugPrint('📱 Offline mode: loaded from cache. Count: ${_allProducts.length}');
+        debugPrint(
+          '📱 Offline mode: loaded from cache. Count: ${_allProducts.length}',
+        );
       }
     } catch (e) {
       // Network error occurred: try loading from cache
@@ -138,12 +151,12 @@ class ProductProvider extends ChangeNotifier {
         final String jsonString = await file.readAsString();
         final List<dynamic> jsonList = json.decode(jsonString);
 
-        _allProducts = jsonList
-            .map((item) => Product.fromJson(item))
-            .toList();
+        _allProducts = jsonList.map((item) => Product.fromJson(item)).toList();
 
         _buildCategoriesFromProducts();
-        debugPrint('📂 Products loaded from cache. Count: ${_allProducts.length}');
+        debugPrint(
+          '📂 Products loaded from cache. Count: ${_allProducts.length}',
+        );
       } else {
         _errorMessage = 'No cached data available. Please connect to internet.';
         _allProducts = [];
@@ -187,17 +200,19 @@ class ProductProvider extends ChangeNotifier {
       'sports',
       'groceries',
       'accessories',
-      'gaming'
+      'gaming',
     ];
     for (var catId in extraCategories) {
       if (!_categories.any((c) => c.id == catId)) {
-        _categories.add(Category(
-          id: catId,
-          name: _formatCategoryName(catId),
-          icon: _categoryIcons[catId] ?? '📦',
-          imageUrl: '',
-          productCount: 0,
-        ));
+        _categories.add(
+          Category(
+            id: catId,
+            name: _formatCategoryName(catId),
+            icon: _categoryIcons[catId] ?? '📦',
+            imageUrl: '',
+            productCount: 0,
+          ),
+        );
       }
     }
   }
@@ -212,7 +227,8 @@ class ProductProvider extends ChangeNotifier {
         price: 1199.99,
         oldPrice: 1299.99,
         discountPercentage: 8,
-        imageUrl: 'https://images.unsplash.com/photo-1696446701796-da61225697cc?w=500',
+        imageUrl:
+            'https://images.unsplash.com/photo-1696446701796-da61225697cc?w=500',
         description: 'Latest Apple iPhone with Titanium design.',
         rating: 4.9,
       ),
@@ -221,7 +237,8 @@ class ProductProvider extends ChangeNotifier {
         name: 'Samsung Galaxy S24 Ultra',
         categoryId: 'smartphones',
         price: 1099.99,
-        imageUrl: 'https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?w=500',
+        imageUrl:
+            'https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?w=500',
         description: 'Advanced AI smartphone with S-Pen.',
         rating: 4.8,
       ),
@@ -230,7 +247,8 @@ class ProductProvider extends ChangeNotifier {
         name: 'Rolex Submariner',
         categoryId: 'watches',
         price: 8500.00,
-        imageUrl: 'https://images.unsplash.com/photo-1523170335258-f5ed11844a49?w=500',
+        imageUrl:
+            'https://images.unsplash.com/photo-1523170335258-f5ed11844a49?w=500',
         description: 'Classic luxury diver watch.',
         rating: 5.0,
       ),
@@ -239,7 +257,8 @@ class ProductProvider extends ChangeNotifier {
         name: 'Apple Watch Ultra 2',
         categoryId: 'watches',
         price: 799.00,
-        imageUrl: 'https://images.unsplash.com/photo-1434494878577-86c23bcb06b9?w=500',
+        imageUrl:
+            'https://images.unsplash.com/photo-1434494878577-86c23bcb06b9?w=500',
         description: 'The most rugged and capable Apple Watch.',
         rating: 4.7,
       ),
@@ -250,7 +269,8 @@ class ProductProvider extends ChangeNotifier {
         price: 180.00,
         oldPrice: 220.00,
         discountPercentage: 18,
-        imageUrl: 'https://images.unsplash.com/photo-1584735175315-9d5df23860e6?w=500',
+        imageUrl:
+            'https://images.unsplash.com/photo-1584735175315-9d5df23860e6?w=500',
         description: 'Iconic basketball sneakers.',
         rating: 4.9,
       ),
@@ -259,7 +279,8 @@ class ProductProvider extends ChangeNotifier {
         name: 'Nike Air Max 270',
         categoryId: 'shoes',
         price: 150.00,
-        imageUrl: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500',
+        imageUrl:
+            'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500',
         description: 'Comfortable lifestyle sneakers.',
         rating: 4.6,
       ),
@@ -268,7 +289,8 @@ class ProductProvider extends ChangeNotifier {
         name: 'Modern Velvet Sofa',
         categoryId: 'furniture',
         price: 899.00,
-        imageUrl: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=500',
+        imageUrl:
+            'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=500',
         description: 'Luxury velvet sofa for your living room.',
         rating: 4.5,
       ),
@@ -277,7 +299,8 @@ class ProductProvider extends ChangeNotifier {
         name: 'Ergonomic Office Chair',
         categoryId: 'furniture',
         price: 299.00,
-        imageUrl: 'https://images.unsplash.com/photo-1505797149-43b0069ec26b?w=500',
+        imageUrl:
+            'https://images.unsplash.com/photo-1505797149-43b0069ec26b?w=500',
         description: 'Work in comfort with this ergonomic chair.',
         rating: 4.7,
       ),
@@ -286,7 +309,8 @@ class ProductProvider extends ChangeNotifier {
         name: 'Sony PlayStation 5',
         categoryId: 'gaming',
         price: 499.00,
-        imageUrl: 'https://images.unsplash.com/photo-1606813907291-d86efa9b94db?w=500',
+        imageUrl:
+            'https://images.unsplash.com/photo-1606813907291-d86efa9b94db?w=500',
         description: 'Next-gen gaming console.',
         rating: 4.9,
       ),
@@ -295,7 +319,8 @@ class ProductProvider extends ChangeNotifier {
         name: 'Gaming Mechanical Keyboard',
         categoryId: 'gaming',
         price: 120.00,
-        imageUrl: 'https://images.unsplash.com/photo-1511467687858-23d96c32e4ae?w=500',
+        imageUrl:
+            'https://images.unsplash.com/photo-1511467687858-23d96c32e4ae?w=500',
         description: 'RGB Backlit mechanical keyboard.',
         rating: 4.5,
       ),
@@ -314,9 +339,11 @@ class ProductProvider extends ChangeNotifier {
   String _formatCategoryName(String categoryId) {
     return categoryId
         .split(' ')
-        .map((word) => word.isNotEmpty
-            ? '${word[0].toUpperCase()}${word.substring(1)}'
-            : '')
+        .map(
+          (word) => word.isNotEmpty
+              ? '${word[0].toUpperCase()}${word.substring(1)}'
+              : '',
+        )
         .join(' ');
   }
 
