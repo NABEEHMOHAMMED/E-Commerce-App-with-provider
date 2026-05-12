@@ -217,20 +217,20 @@ class ProductCard extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(width: 6),
-                      if (product.oldPrice != null)
-                        Flexible(
-                          child: Text(
-                            '\$${product.oldPrice!.toStringAsFixed(2)}',
-                            style: const TextStyle(
-                              color: AppTheme.textLightMuted,
-                              fontSize: 10,
-                              decoration: TextDecoration.lineThrough,
-                              decorationColor: AppTheme.textLightMuted,
-                              
-                            ),
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
+if (product.oldPrice != null)
+                         Flexible(
+                           child: Text(
+                             '\$${product.oldPrice!.toStringAsFixed(2)}',
+                             style: const TextStyle(
+                               color: AppTheme.textLightMuted,
+                               fontSize: 10,
+                               decoration: TextDecoration.lineThrough,
+                               decorationColor: AppTheme.textLightMuted,
+                               fontWeight: FontWeight.w500,
+                             ),
+                             overflow: TextOverflow.ellipsis,
+                           ),
+                         ),
                       const Spacer(),
                       Row(
                         mainAxisSize: MainAxisSize.min,

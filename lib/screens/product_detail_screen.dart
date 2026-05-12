@@ -337,7 +337,7 @@ class ProductDetailScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildPriceSection() {
+Widget _buildPriceSection() {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
@@ -347,7 +347,6 @@ class ProductDetailScreen extends StatelessWidget {
             color: AppTheme.textLightPrimary,
             fontSize: 30,
             fontWeight: FontWeight.bold,
-            
           ),
         ),
         const SizedBox(width: 10),
@@ -359,7 +358,7 @@ class ProductDetailScreen extends StatelessWidget {
               fontSize: 16,
               decoration: TextDecoration.lineThrough,
               decorationColor: AppTheme.textLightMuted,
-              
+              fontWeight: FontWeight.w500,
             ),
           ),
           const SizedBox(width: 8),
@@ -375,7 +374,6 @@ class ProductDetailScreen extends StatelessWidget {
                 color: AppTheme.neonRed,
                 fontSize: 11,
                 fontWeight: FontWeight.bold,
-                
               ),
             ),
           ),
