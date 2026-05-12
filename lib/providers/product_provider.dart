@@ -61,22 +61,20 @@ class ProductProvider extends ChangeNotifier {
     });
   }
 
-  // ─── Initialize Connectivity Listener ───────────────────────────────
-  Future<void> _initConnectivity() async {
-    final dynamic result = await Connectivity().checkConnectivity();
-    final List<ConnectivityResult> results = result is List
-        ? List<ConnectivityResult>.from(result)
-        : [result as ConnectivityResult];
-    _isConnected = !results.contains(ConnectivityResult.none);
+// ─── Initialize Connectivity Listener ───────────────────────────────
+   Future<void> _initConnectivity() async {
+     try {
+       final dynamic result = await Connectivity().checkConnectivity();
+       final List<ConnectivityResult> results = result is List
+           ? List<ConnectivityResult>.from(result)
+           : [result as ConnectivityResult];
+       _isConnected = !results.contains(ConnectivityResult.none);
+     } catch (e) {
+       _isConnected = true; // افتراض الاتصال إذا فشل التحقق
+     }
 
-    Connectivity().onConnectivityChanged.listen((dynamic result) {
-      final List<ConnectivityResult> results = result is List
-          ? List<ConnectivityResult>.from(result)
-          : [result as ConnectivityResult];
-      _isConnected = !results.contains(ConnectivityResult.none);
-      notifyListeners();
-    });
-  }
+     // لا نستخدم مستمع الاتصال لتفادي المشاكل
+   }
 
   // ─── Fetch Products from API or Load from Cache ─────────────────────
   /// Fetches products from FakeStore API if online.
