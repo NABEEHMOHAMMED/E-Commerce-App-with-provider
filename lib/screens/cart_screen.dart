@@ -24,12 +24,17 @@ class CartScreen extends StatelessWidget {
                         Navigator.of(context).pop();
                       } else {
                         // If it's a tab, go back to Home tab
-                        Provider.of<NavigationProvider>(context, listen: false)
-                            .goHome();
+                        Provider.of<NavigationProvider>(
+                          context,
+                          listen: false,
+                        ).goHome();
                       }
                     },
-                    child: const Icon(Icons.arrow_back_ios_new_rounded,
-                        color: Colors.white, size: 20),
+                    child: const Icon(
+                      Icons.arrow_back_ios_new_rounded,
+                      color: Colors.white,
+                      size: 20,
+                    ),
                   ),
                   const Spacer(),
                   const Text(
@@ -87,7 +92,10 @@ class CartScreen extends StatelessWidget {
                                   width: 80,
                                   height: 80,
                                   color: Colors.grey[800],
-                                  child: const Icon(Icons.image_not_supported, color: Colors.white54),
+                                  child: const Icon(
+                                    Icons.image_not_supported,
+                                    color: Colors.white54,
+                                  ),
                                 ),
                               ),
                             ),
@@ -135,10 +143,16 @@ class CartScreen extends StatelessWidget {
                               child: Container(
                                 padding: const EdgeInsets.all(4),
                                 decoration: const BoxDecoration(
-                                  color: Color(0xFFF05B43), // Reddish orange circle
+                                  color: Color(
+                                    0xFFF05B43,
+                                  ), // Reddish orange circle
                                   shape: BoxShape.circle,
                                 ),
-                                child: const Icon(Icons.remove, color: Colors.white, size: 16),
+                                child: const Icon(
+                                  Icons.remove,
+                                  color: Colors.white,
+                                  size: 16,
+                                ),
                               ),
                             ),
                           ],
@@ -192,21 +206,29 @@ class CartScreen extends StatelessWidget {
                               ),
                               title: const Row(
                                 children: [
-                                  Icon(Icons.check_circle, color: Colors.green, size: 28),
+                                  Icon(
+                                    Icons.check_circle,
+                                    color: Colors.green,
+                                    size: 28,
+                                  ),
                                   SizedBox(width: 10),
                                   Expanded(
                                     child: Text(
                                       'Order Successful',
                                       style: TextStyle(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.bold),
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                      ),
                                     ),
                                   ),
                                 ],
                               ),
                               content: const Text(
                                 'Thank you! Your order has been placed successfully.',
-                                style: TextStyle(color: Colors.white70, fontSize: 16),
+                                style: TextStyle(
+                                  color: Colors.white70,
+                                  fontSize: 16,
+                                ),
                               ),
                               actions: [
                                 TextButton(
