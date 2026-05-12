@@ -137,13 +137,12 @@ class ProductCard extends StatelessWidget {
           ),
 
           // ─── Product Details ──────────────────────────────
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
                   // Category label
                   Text(
                     _getCategoryLabel(product.categoryId),
@@ -255,11 +254,10 @@ class ProductCard extends StatelessWidget {
                 ],
               ),
             ),
-          ),
-        ],
-      ),
-    );
-  }
+          ],
+        ),
+      );
+    }
 
   Color _getCategoryColor(String categoryId) {
     const map = {
