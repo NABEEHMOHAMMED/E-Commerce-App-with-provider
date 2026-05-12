@@ -58,8 +58,7 @@ class HomeScreen extends StatelessWidget {
                         Icons.home_filled, Icons.home_outlined, 'Home'),
                     _buildNavItem(context, navProvider, 1,
                         Icons.grid_view_rounded, Icons.grid_view_outlined, 'Categories'),
-                    _buildNavItem(context, navProvider, 2,
-                        Icons.favorite_rounded, Icons.favorite_border_rounded, 'Favorites'),
+                    _buildFavoriteNavItem(context, navProvider),
                     _buildCartNavItem(context, navProvider),
                     _buildNavItem(context, navProvider, 4,
                         Icons.person_rounded, Icons.person_outline_rounded, 'Profile'),
@@ -144,12 +143,12 @@ class HomeScreen extends StatelessWidget {
                   size: 24,
                 ),
                 const SizedBox(height: 4),
-                const Text(
+                Text(
                   'Cart',
                   style: TextStyle(
-                    color: AppTheme.primaryPurple,
+                    color: isSelected ? AppTheme.primaryPurple : AppTheme.navInactive,
                     fontSize: 10,
-                    fontWeight: FontWeight.w700,
+                    fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
                   ),
                 ),
               ],
@@ -169,6 +168,72 @@ class HomeScreen extends StatelessWidget {
                   ),
                   child: Text(
                     '${cart.itemCount}',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 9,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFavoriteNavItem(BuildContext context, NavigationProvider nav) {
+    final isSelected = nav.selectedIndex == 2;
+    return GestureDetector(
+      onTap: () => nav.setSelectedIndex(2),
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          AnimatedContainer(
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeInOut,
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+            decoration: BoxDecoration(
+              color: isSelected
+                  ? AppTheme.primaryPurple.withValues(alpha: 0.08)
+                  : Colors.transparent,
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  isSelected ? Icons.favorite_rounded : Icons.favorite_border_rounded,
+                  color: isSelected ? AppTheme.primaryPurple : AppTheme.navInactive,
+                  size: 24,
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'Favorites',
+                  style: TextStyle(
+                    color: isSelected ? AppTheme.primaryPurple : AppTheme.navInactive,
+                    fontSize: 10,
+                    fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Consumer<FavoriteProvider>(
+            builder: (ctx, favs, _) {
+              if (favs.favorites.isEmpty) return const SizedBox.shrink();
+              return Positioned(
+                right: 2,
+                top: 0,
+                child: Container(
+                  padding: const EdgeInsets.all(5),
+                  decoration: const BoxDecoration(
+                    color: AppTheme.neonPink,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Text(
+                    '${favs.favorites.length}',
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 9,

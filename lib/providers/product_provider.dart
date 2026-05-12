@@ -33,12 +33,22 @@ class ProductProvider extends ChangeNotifier {
     "men's clothing": '👕',
     "women's clothing": '👗',
     'jewelery': '💍',
+    'smartphones': '📱',
+    'watches': '⌚',
+    'shoes': '👟',
+    'furniture': '🪑',
+    'beauty': '💄',
+    'toys': '🧸',
+    'sports': '⚽',
+    'groceries': '🛒',
+    'accessories': '🕶️',
+    'gaming': '🎮',
   };
 
   // ─── Constructor ─────────────────────────────────────────────────────
   ProductProvider() {
     _initConnectivity();
-    fetchProducts();
+    fetchProducts().then((_) => _addMockProducts());
   }
 
   // ─── Initialize Connectivity Listener ───────────────────────────────
@@ -157,6 +167,139 @@ class ProductProvider extends ChangeNotifier {
         productCount: entry.value,
       );
     }).toList();
+
+    // إضافة فئات إضافية لملء التطبيق (Mock Categories)
+    final extraCategories = [
+      'smartphones',
+      'watches',
+      'shoes',
+      'furniture',
+      'beauty',
+      'toys',
+      'sports',
+      'groceries',
+      'accessories',
+      'gaming'
+    ];
+    for (var catId in extraCategories) {
+      if (!_categories.any((c) => c.id == catId)) {
+        _categories.add(Category(
+          id: catId,
+          name: _formatCategoryName(catId),
+          icon: _categoryIcons[catId] ?? '📦',
+          imageUrl: '',
+          productCount: 0,
+        ));
+      }
+    }
+  }
+
+  /// يضيف منتجات وهمية لتجربة الفئات الجديدة
+  void _addMockProducts() {
+    final mockData = [
+      Product(
+        id: 'm1',
+        name: 'iPhone 15 Pro Max',
+        categoryId: 'smartphones',
+        price: 1199.99,
+        oldPrice: 1299.99,
+        discountPercentage: 8,
+        imageUrl: 'https://images.unsplash.com/photo-1696446701796-da61225697cc?w=500',
+        description: 'Latest Apple iPhone with Titanium design.',
+        rating: 4.9,
+      ),
+      Product(
+        id: 'm2',
+        name: 'Samsung Galaxy S24 Ultra',
+        categoryId: 'smartphones',
+        price: 1099.99,
+        imageUrl: 'https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?w=500',
+        description: 'Advanced AI smartphone with S-Pen.',
+        rating: 4.8,
+      ),
+      Product(
+        id: 'm3',
+        name: 'Rolex Submariner',
+        categoryId: 'watches',
+        price: 8500.00,
+        imageUrl: 'https://images.unsplash.com/photo-1523170335258-f5ed11844a49?w=500',
+        description: 'Classic luxury diver watch.',
+        rating: 5.0,
+      ),
+      Product(
+        id: 'm4',
+        name: 'Apple Watch Ultra 2',
+        categoryId: 'watches',
+        price: 799.00,
+        imageUrl: 'https://images.unsplash.com/photo-1434494878577-86c23bcb06b9?w=500',
+        description: 'The most rugged and capable Apple Watch.',
+        rating: 4.7,
+      ),
+      Product(
+        id: 'm5',
+        name: 'Air Jordan 1 Retro',
+        categoryId: 'shoes',
+        price: 180.00,
+        oldPrice: 220.00,
+        discountPercentage: 18,
+        imageUrl: 'https://images.unsplash.com/photo-1584735175315-9d5df23860e6?w=500',
+        description: 'Iconic basketball sneakers.',
+        rating: 4.9,
+      ),
+      Product(
+        id: 'm6',
+        name: 'Nike Air Max 270',
+        categoryId: 'shoes',
+        price: 150.00,
+        imageUrl: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500',
+        description: 'Comfortable lifestyle sneakers.',
+        rating: 4.6,
+      ),
+      Product(
+        id: 'm7',
+        name: 'Modern Velvet Sofa',
+        categoryId: 'furniture',
+        price: 899.00,
+        imageUrl: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=500',
+        description: 'Luxury velvet sofa for your living room.',
+        rating: 4.5,
+      ),
+      Product(
+        id: 'm8',
+        name: 'Ergonomic Office Chair',
+        categoryId: 'furniture',
+        price: 299.00,
+        imageUrl: 'https://images.unsplash.com/photo-1505797149-43b0069ec26b?w=500',
+        description: 'Work in comfort with this ergonomic chair.',
+        rating: 4.7,
+      ),
+      Product(
+        id: 'm9',
+        name: 'Sony PlayStation 5',
+        categoryId: 'gaming',
+        price: 499.00,
+        imageUrl: 'https://images.unsplash.com/photo-1606813907291-d86efa9b94db?w=500',
+        description: 'Next-gen gaming console.',
+        rating: 4.9,
+      ),
+      Product(
+        id: 'm10',
+        name: 'Gaming Mechanical Keyboard',
+        categoryId: 'gaming',
+        price: 120.00,
+        imageUrl: 'https://images.unsplash.com/photo-1511467687858-23d96c32e4ae?w=500',
+        description: 'RGB Backlit mechanical keyboard.',
+        rating: 4.5,
+      ),
+    ];
+
+    for (var product in mockData) {
+      if (!_allProducts.any((p) => p.id == product.id)) {
+        _allProducts.add(product);
+      }
+    }
+    _buildCategoriesFromProducts();
+    notifyListeners();
   }
 
   /// Formats raw category ID into a display-friendly name.

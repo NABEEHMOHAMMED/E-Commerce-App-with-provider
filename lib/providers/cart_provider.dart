@@ -1,4 +1,7 @@
+import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
 import '../models/product.dart';
 
 class CartItem {
@@ -6,10 +9,24 @@ class CartItem {
   int quantity;
 
   CartItem({required this.product, this.quantity = 1});
+
+  Map<String, dynamic> toJson() {
+    return {
+      'product': product.toJson(),
+      'quantity': quantity,
+    };
+  }
+
+  factory CartItem.fromJson(Map<String, dynamic> json) {
+    return CartItem(
+      product: Product.fromJson(json['product']),
+      quantity: json['quantity'],
+    );
+  }
 }
 
 class CartProvider extends ChangeNotifier {
-  final List<CartItem> _items = [];
+  List<CartItem> _items = [];
 
   List<CartItem> get items => _items;
 
@@ -24,6 +41,11 @@ class CartProvider extends ChangeNotifier {
 
   double get totalPrice => subtotal;
 
+  CartProvider() {
+    // تحميل السلة المحفوظة عند بدء التشغيل
+    _loadFromDisk();
+  }
+
   void addToCart(Product product) {
     final existingIndex = _items.indexWhere(
       (item) => item.product.id == product.id,
@@ -35,6 +57,7 @@ class CartProvider extends ChangeNotifier {
       _items.add(CartItem(product: product));
     }
     notifyListeners();
+    _saveToDisk(); // حفظ التغيير
   }
 
   void increaseQuantity(String productId) {
@@ -42,6 +65,7 @@ class CartProvider extends ChangeNotifier {
     if (index >= 0) {
       _items[index].quantity++;
       notifyListeners();
+      _saveToDisk();
     }
   }
 
@@ -54,16 +78,53 @@ class CartProvider extends ChangeNotifier {
         _items.removeAt(index);
       }
       notifyListeners();
+      _saveToDisk();
     }
   }
 
   void removeFromCart(String productId) {
     _items.removeWhere((item) => item.product.id == productId);
     notifyListeners();
+    _saveToDisk();
   }
 
   void clearCart() {
     _items.clear();
     notifyListeners();
+    _saveToDisk();
+  }
+
+  // ─── منطق التخزين المحلي (Persistence) ───────────────────────────────
+
+  Future<File> _getCartFile() async {
+    final directory = await getApplicationDocumentsDirectory();
+    return File('${directory.path}/cart.json');
+  }
+
+  Future<void> _saveToDisk() async {
+    try {
+      final file = await _getCartFile();
+      final String jsonString = json.encode(
+        _items.map((item) => item.toJson()).toList(),
+      );
+      await file.writeAsString(jsonString);
+    } catch (e) {
+      debugPrint('Error saving cart: $e');
+    }
+  }
+
+  Future<void> _loadFromDisk() async {
+    try {
+      final file = await _getCartFile();
+      if (await file.exists()) {
+        final String jsonString = await file.readAsString();
+        final List<dynamic> jsonList = json.decode(jsonString);
+        
+        _items = jsonList.map((item) => CartItem.fromJson(item)).toList();
+        notifyListeners();
+      }
+    } catch (e) {
+      debugPrint('Error loading cart: $e');
+    }
   }
 }
