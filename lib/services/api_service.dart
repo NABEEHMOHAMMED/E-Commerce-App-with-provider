@@ -9,7 +9,7 @@ class ApiService {
 
   /// Fetches all products from the API.
   /// Sends an HTTP GET request to /products endpoint,
-  /// then parses the JSON response into a List<Product>.
+  /// then parses the JSON response into a `List<Product>`.
   ///
   /// Throws an [Exception] if the request fails.
   static Future<List<Product>> fetchProducts() async {

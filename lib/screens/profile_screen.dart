@@ -34,7 +34,7 @@ class ProfileScreen extends StatelessWidget {
                             33,
                             9,
                             217,
-                          ).withOpacity(0.3),
+                          ).withValues(alpha: 0.3),
                           blurRadius: 18,
                           spreadRadius: 2,
                         ),
@@ -98,8 +98,8 @@ class ProfileScreen extends StatelessWidget {
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
             color: isLogout
-                ? AppTheme.neonRed.withOpacity(0.1)
-                : AppTheme.blueAccent.withOpacity(0.08),
+                ? AppTheme.neonRed.withValues(alpha: 0.1)
+                : AppTheme.blueAccent.withValues(alpha: 0.08),
             borderRadius: BorderRadius.circular(10),
           ),
           child: Icon(

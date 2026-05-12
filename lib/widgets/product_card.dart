@@ -18,7 +18,7 @@ class ProductCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.08),
+            color: Colors.black.withValues(alpha: 0.08),
             blurRadius: 12,
             spreadRadius: 1,
             offset: const Offset(0, 4),
@@ -38,7 +38,7 @@ class ProductCard extends StatelessWidget {
                   height: 100,
                   width: double.infinity,
                   fit: BoxFit.cover,
-                  errorBuilder: (_, __, ___) => Container(
+                  errorBuilder: (_, _, _) => Container(
                     height: 100,
                     color: AppTheme.bgLightSurface,
                     child: Icon(Icons.image_not_supported,
