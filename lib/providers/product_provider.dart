@@ -47,11 +47,13 @@ class ProductProvider extends ChangeNotifier {
 
   // ─── Constructor ─────────────────────────────────────────────────────
   ProductProvider() {
-    // تشغيل التهيئة في الخلفية لمنع تجميد التطبيق عند الفتح
+    // تحميل البيانات من الكاش أولاً ثم محاولة التحديث من الإنترنت
     Future.microtask(() async {
       try {
+        await _loadFromDisk(); // تحميل البيانات المخزنة أولاً
+        _buildCategoriesFromProducts();
         await _initConnectivity();
-        await fetchProducts();
+        await fetchProducts(); // محاولة التحديث إذا كان هناك اتصال
         _addMockProducts();
       } catch (e) {
         debugPrint('Critical error in ProductProvider init: $e');
