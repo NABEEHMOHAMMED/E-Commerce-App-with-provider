@@ -6,11 +6,7 @@ class CartItemWidget extends StatelessWidget {
   final CartItem item;
   final VoidCallback onRemove;
 
-  const CartItemWidget({
-    super.key,
-    required this.item,
-    required this.onRemove,
-  });
+  const CartItemWidget({super.key, required this.item, required this.onRemove});
 
   @override
   Widget build(BuildContext context) {
@@ -37,15 +33,18 @@ class CartItemWidget extends StatelessWidget {
               width: 80,
               height: 80,
               fit: BoxFit.cover,
-              errorBuilder: (_, __, _) => Container(
+              errorBuilder: (_, _, _) => Container(
                 width: 80,
                 height: 80,
                 decoration: BoxDecoration(
                   color: AppTheme.bgLightSurface,
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: const Icon(Icons.image_not_supported,
-                    color: AppTheme.textLightMuted, size: 30),
+                child: const Icon(
+                  Icons.image_not_supported,
+                  color: AppTheme.textLightMuted,
+                  size: 30,
+                ),
               ),
             ),
           ),
@@ -105,8 +104,11 @@ class CartItemWidget extends StatelessWidget {
                         topRight: Radius.circular(12),
                       ),
                     ),
-                    child: const Icon(Icons.add_rounded,
-                        color: AppTheme.primaryPurple, size: 16),
+                    child: const Icon(
+                      Icons.add_rounded,
+                      color: AppTheme.primaryPurple,
+                      size: 16,
+                    ),
                   ),
                 ),
                 Text(
@@ -129,8 +131,11 @@ class CartItemWidget extends StatelessWidget {
                         bottomRight: Radius.circular(12),
                       ),
                     ),
-                    child: const Icon(Icons.remove_rounded,
-                        color: AppTheme.neonRed, size: 16),
+                    child: const Icon(
+                      Icons.remove_rounded,
+                      color: AppTheme.neonRed,
+                      size: 16,
+                    ),
                   ),
                 ),
               ],

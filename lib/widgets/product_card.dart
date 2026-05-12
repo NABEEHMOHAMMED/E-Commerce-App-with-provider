@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/product.dart';
@@ -33,12 +34,24 @@ class ProductCard extends StatelessWidget {
             children: [
               ClipRRect(
                 borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-                child: Image.network(
-                  product.imageUrl,
+                child: CachedNetworkImage(
+                  imageUrl: product.imageUrl,
                   height: 150,
                   width: double.infinity,
                   fit: BoxFit.cover,
-                  errorBuilder: (_, __, _) => Container(
+                  placeholder: (context, url) => Container(
+                    height: 150,
+                    decoration: BoxDecoration(
+                      color: AppTheme.bgLightSurface,
+                    ),
+                    child: const Center(
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        valueColor: AlwaysStoppedAnimation<Color>(AppTheme.primaryPurple),
+                      ),
+                    ),
+                  ),
+                  errorWidget: (context, url, error) => Container(
                     height: 150,
                     decoration: const BoxDecoration(
                       gradient: AppTheme.primaryGradient,

@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/product.dart';
@@ -53,10 +54,21 @@ class ProductDetailScreen extends StatelessWidget {
               background: Stack(
                 fit: StackFit.expand,
                 children: [
-                  Image.network(
-                    product.imageUrl,
+                  CachedNetworkImage(
+                    imageUrl: product.imageUrl,
                     fit: BoxFit.cover,
-                    errorBuilder: (_, __, _) => Container(
+                    placeholder: (context, url) => Container(
+                      decoration: const BoxDecoration(
+                        color: AppTheme.bgLightSurface,
+                      ),
+                      child: const Center(
+                        child: CircularProgressIndicator(
+                          strokeWidth: 3,
+                          valueColor: AlwaysStoppedAnimation<Color>(AppTheme.primaryPurple),
+                        ),
+                      ),
+                    ),
+                    errorWidget: (context, url, error) => Container(
                       decoration: const BoxDecoration(
                         gradient: AppTheme.primaryGradient,
                       ),

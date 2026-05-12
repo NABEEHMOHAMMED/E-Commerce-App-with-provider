@@ -46,22 +46,45 @@ class HomeScreen extends StatelessWidget {
                   offset: const Offset(0, -6),
                 ),
               ],
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(24),
+              ),
             ),
             child: SafeArea(
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 10,
+                ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
-                    _buildNavItem(context, navProvider, 0,
-                        Icons.home_filled, Icons.home_outlined, 'Home'),
-                    _buildNavItem(context, navProvider, 1,
-                        Icons.grid_view_rounded, Icons.grid_view_outlined, 'Categories'),
+                    _buildNavItem(
+                      context,
+                      navProvider,
+                      0,
+                      Icons.home_filled,
+                      Icons.home_outlined,
+                      'Home',
+                    ),
+                    _buildNavItem(
+                      context,
+                      navProvider,
+                      1,
+                      Icons.grid_view_rounded,
+                      Icons.grid_view_outlined,
+                      'Categories',
+                    ),
                     _buildFavoriteNavItem(context, navProvider),
                     _buildCartNavItem(context, navProvider),
-                    _buildNavItem(context, navProvider, 4,
-                        Icons.person_rounded, Icons.person_outline_rounded, 'Profile'),
+                    _buildNavItem(
+                      context,
+                      navProvider,
+                      4,
+                      Icons.person_rounded,
+                      Icons.person_outline_rounded,
+                      'Profile',
+                    ),
                   ],
                 ),
               ),
@@ -72,8 +95,14 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildNavItem(BuildContext context, NavigationProvider nav, int index,
-      IconData activeIcon, IconData inactiveIcon, String label) {
+  Widget _buildNavItem(
+    BuildContext context,
+    NavigationProvider nav,
+    int index,
+    IconData activeIcon,
+    IconData inactiveIcon,
+    String label,
+  ) {
     final isSelected = nav.selectedIndex == index;
     return GestureDetector(
       onTap: () => nav.setSelectedIndex(index),
@@ -98,7 +127,9 @@ class HomeScreen extends StatelessWidget {
               child: Icon(
                 isSelected ? activeIcon : inactiveIcon,
                 key: ValueKey(isSelected),
-                color: isSelected ? AppTheme.primaryPurple : AppTheme.navInactive,
+                color: isSelected
+                    ? AppTheme.primaryPurple
+                    : AppTheme.navInactive,
                 size: 24,
               ),
             ),
@@ -106,7 +137,9 @@ class HomeScreen extends StatelessWidget {
             Text(
               label,
               style: TextStyle(
-                color: isSelected ? AppTheme.primaryPurple : AppTheme.navInactive,
+                color: isSelected
+                    ? AppTheme.primaryPurple
+                    : AppTheme.navInactive,
                 fontSize: 10,
                 fontWeight: isSelected ? FontWeight.w700 : FontWeight.w400,
               ),
@@ -138,15 +171,21 @@ class HomeScreen extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Icon(
-                  isSelected ? Icons.shopping_cart_rounded : Icons.shopping_cart_outlined,
-                  color: isSelected ? AppTheme.primaryPurple : AppTheme.navInactive,
+                  isSelected
+                      ? Icons.shopping_cart_rounded
+                      : Icons.shopping_cart_outlined,
+                  color: isSelected
+                      ? AppTheme.primaryPurple
+                      : AppTheme.navInactive,
                   size: 24,
                 ),
                 const SizedBox(height: 4),
                 Text(
                   'Cart',
                   style: TextStyle(
-                    color: isSelected ? AppTheme.primaryPurple : AppTheme.navInactive,
+                    color: isSelected
+                        ? AppTheme.primaryPurple
+                        : AppTheme.navInactive,
                     fontSize: 10,
                     fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
                   ),
@@ -155,7 +194,7 @@ class HomeScreen extends StatelessWidget {
             ),
           ),
           Consumer<CartProvider>(
-            builder: (ctx, cart, __) {
+            builder: (ctx, cart, _) {
               if (cart.itemCount == 0) return const SizedBox.shrink();
               return Positioned(
                 right: 2,
@@ -204,15 +243,21 @@ class HomeScreen extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Icon(
-                  isSelected ? Icons.favorite_rounded : Icons.favorite_border_rounded,
-                  color: isSelected ? AppTheme.primaryPurple : AppTheme.navInactive,
+                  isSelected
+                      ? Icons.favorite_rounded
+                      : Icons.favorite_border_rounded,
+                  color: isSelected
+                      ? AppTheme.primaryPurple
+                      : AppTheme.navInactive,
                   size: 24,
                 ),
                 const SizedBox(height: 4),
                 Text(
                   'Favorites',
                   style: TextStyle(
-                    color: isSelected ? AppTheme.primaryPurple : AppTheme.navInactive,
+                    color: isSelected
+                        ? AppTheme.primaryPurple
+                        : AppTheme.navInactive,
                     fontSize: 10,
                     fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
                   ),
@@ -260,7 +305,8 @@ class MainHomeScreen extends StatelessWidget {
     return SafeArea(
       child: Consumer<ProductProvider>(
         builder: (ctx, productProvider, _) {
-          final showStatusBanner = productProvider.errorMessage != null &&
+          final showStatusBanner =
+              productProvider.errorMessage != null &&
               productProvider.allProducts.isNotEmpty;
 
           return CustomScrollView(
@@ -319,8 +365,9 @@ class MainHomeScreen extends StatelessWidget {
                 bottom: PreferredSize(
                   preferredSize: const Size.fromHeight(1),
                   child: Container(
-                      height: 1,
-                      color: Colors.white.withValues(alpha: 0.2)),
+                    height: 1,
+                    color: Colors.white.withValues(alpha: 0.2),
+                  ),
                 ),
               ),
 
@@ -330,7 +377,10 @@ class MainHomeScreen extends StatelessWidget {
                   child: Container(
                     width: double.infinity,
                     margin: const EdgeInsets.fromLTRB(16, 12, 16, 0),
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 14,
+                    ),
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         colors: [
@@ -382,7 +432,8 @@ class MainHomeScreen extends StatelessWidget {
                 ),
 
               // ─── Loading State ───────────────────────────────
-              if (productProvider.isLoading && productProvider.allProducts.isEmpty)
+              if (productProvider.isLoading &&
+                  productProvider.allProducts.isEmpty)
                 SliverFillRemaining(
                   child: Center(
                     child: Column(
@@ -394,7 +445,9 @@ class MainHomeScreen extends StatelessWidget {
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
                             border: Border.all(
-                              color: AppTheme.primaryPurple.withValues(alpha: 0.2),
+                              color: AppTheme.primaryPurple.withValues(
+                                alpha: 0.2,
+                              ),
                               width: 3,
                             ),
                           ),
@@ -417,7 +470,8 @@ class MainHomeScreen extends StatelessWidget {
                 ),
 
               // ─── Empty State ─────────────────────────────────
-              if (!productProvider.isLoading && productProvider.allProducts.isEmpty)
+              if (!productProvider.isLoading &&
+                  productProvider.allProducts.isEmpty)
                 SliverFillRemaining(
                   child: Center(
                     child: Column(
@@ -470,7 +524,6 @@ class MainHomeScreen extends StatelessWidget {
 
               // ─── Products Found ──────────────────────────────
               if (productProvider.allProducts.isNotEmpty) ...[
-
                 // ─── Banner Section ────────────────────────────
                 SliverToBoxAdapter(
                   child: Padding(
@@ -482,7 +535,9 @@ class MainHomeScreen extends StatelessWidget {
                         borderRadius: BorderRadius.circular(24),
                         boxShadow: [
                           BoxShadow(
-                            color: AppTheme.primaryPurple.withValues(alpha: 0.2),
+                            color: AppTheme.primaryPurple.withValues(
+                              alpha: 0.2,
+                            ),
                             blurRadius: 20,
                             offset: const Offset(0, 8),
                           ),
@@ -541,7 +596,8 @@ class MainHomeScreen extends StatelessWidget {
                               width: 120,
                               height: 120,
                               fit: BoxFit.cover,
-                              errorBuilder: (_, __, _) => const SizedBox.shrink(),
+                              errorBuilder: (_, _, _) =>
+                                  const SizedBox.shrink(),
                             ),
                           ),
                         ],
@@ -563,15 +619,23 @@ class MainHomeScreen extends StatelessWidget {
                             Row(
                               children: [
                                 Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 10,
+                                    vertical: 4,
+                                  ),
                                   decoration: BoxDecoration(
-                                    color: AppTheme.neonRed.withValues(alpha: 0.15),
+                                    color: AppTheme.neonRed.withValues(
+                                      alpha: 0.15,
+                                    ),
                                     borderRadius: BorderRadius.circular(8),
                                   ),
                                   child: const Row(
                                     children: [
-                                      Icon(Icons.local_fire_department_rounded,
-                                          color: AppTheme.neonRed, size: 14),
+                                      Icon(
+                                        Icons.local_fire_department_rounded,
+                                        color: AppTheme.neonRed,
+                                        size: 14,
+                                      ),
                                       SizedBox(width: 4),
                                       Text(
                                         'Flash',
@@ -618,9 +682,14 @@ class MainHomeScreen extends StatelessWidget {
                             );
                           },
                           child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 14,
+                              vertical: 8,
+                            ),
                             decoration: BoxDecoration(
-                              color: AppTheme.primaryPurple.withValues(alpha: 0.08),
+                              color: AppTheme.primaryPurple.withValues(
+                                alpha: 0.08,
+                              ),
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: const Text(
@@ -682,15 +751,23 @@ class MainHomeScreen extends StatelessWidget {
                             Row(
                               children: [
                                 Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 10,
+                                    vertical: 4,
+                                  ),
                                   decoration: BoxDecoration(
-                                    color: AppTheme.neonYellow.withValues(alpha: 0.15),
+                                    color: AppTheme.neonYellow.withValues(
+                                      alpha: 0.15,
+                                    ),
                                     borderRadius: BorderRadius.circular(8),
                                   ),
                                   child: const Row(
                                     children: [
-                                      Icon(Icons.trending_up_rounded,
-                                          color: AppTheme.neonYellow, size: 14),
+                                      Icon(
+                                        Icons.trending_up_rounded,
+                                        color: AppTheme.neonYellow,
+                                        size: 14,
+                                      ),
                                       SizedBox(width: 4),
                                       Text(
                                         'Trending',
@@ -731,16 +808,21 @@ class MainHomeScreen extends StatelessWidget {
                               MaterialPageRoute(
                                 builder: (_) => AllProductsScreen(
                                   title: 'Trending',
-                                  products:
-                                      productProvider.allProducts.reversed.toList(),
+                                  products: productProvider.allProducts.reversed
+                                      .toList(),
                                 ),
                               ),
                             );
                           },
                           child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 14,
+                              vertical: 8,
+                            ),
                             decoration: BoxDecoration(
-                              color: AppTheme.accentTeal.withValues(alpha: 0.08),
+                              color: AppTheme.accentTeal.withValues(
+                                alpha: 0.08,
+                              ),
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: const Text(
@@ -766,7 +848,10 @@ class MainHomeScreen extends StatelessWidget {
                       physics: const BouncingScrollPhysics(),
                       scrollDirection: Axis.horizontal,
                       padding: const EdgeInsets.fromLTRB(20, 14, 10, 14),
-                      itemCount: productProvider.allProducts.skip(6).take(6).length,
+                      itemCount: productProvider.allProducts
+                          .skip(6)
+                          .take(6)
+                          .length,
                       itemBuilder: (ctx, i) {
                         final product = productProvider.allProducts[i + 6];
                         return Padding(
@@ -808,7 +893,9 @@ class MainHomeScreen extends StatelessWidget {
                         Consumer<ProductProvider>(
                           builder: (ctx, productProvider, _) {
                             final categories = productProvider.categories;
-                            if (categories.isEmpty) return const SizedBox.shrink();
+                            if (categories.isEmpty) {
+                              return const SizedBox.shrink();
+                            }
                             return SizedBox(
                               height: 90,
                               child: ListView.builder(
@@ -825,7 +912,9 @@ class MainHomeScreen extends StatelessWidget {
                                           context,
                                           MaterialPageRoute(
                                             builder: (_) =>
-                                                CategoryProductsScreen(category: cat),
+                                                CategoryProductsScreen(
+                                                  category: cat,
+                                                ),
                                           ),
                                         );
                                       },
@@ -833,7 +922,9 @@ class MainHomeScreen extends StatelessWidget {
                                         width: 80,
                                         decoration: BoxDecoration(
                                           gradient: AppTheme.primaryGradient,
-                                          borderRadius: BorderRadius.circular(18),
+                                          borderRadius: BorderRadius.circular(
+                                            18,
+                                          ),
                                           boxShadow: [
                                             BoxShadow(
                                               color: AppTheme.primaryPurple
@@ -850,8 +941,9 @@ class MainHomeScreen extends StatelessWidget {
                                             Container(
                                               padding: const EdgeInsets.all(10),
                                               decoration: BoxDecoration(
-                                                color: Colors.white
-                                                    .withValues(alpha: 0.2),
+                                                color: Colors.white.withValues(
+                                                  alpha: 0.2,
+                                                ),
                                                 shape: BoxShape.circle,
                                               ),
                                               child: Icon(
