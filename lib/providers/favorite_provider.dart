@@ -10,8 +10,8 @@ class FavoriteProvider extends ChangeNotifier {
   List<Product> get favorites => _favorites;
 
   FavoriteProvider() {
-    // تحميل البيانات عند بدء التشغيل (Exercise 2)
-    _loadFromDisk();
+    // تحميل البيانات في الخلفية
+    Future.microtask(() => _loadFromDisk());
   }
 
   bool isFavorite(Product product) {

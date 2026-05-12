@@ -47,8 +47,16 @@ class ProductProvider extends ChangeNotifier {
 
   // ─── Constructor ─────────────────────────────────────────────────────
   ProductProvider() {
-    _initConnectivity();
-    fetchProducts().then((_) => _addMockProducts());
+    // تشغيل التهيئة في الخلفية لمنع تجميد التطبيق عند الفتح
+    Future.microtask(() async {
+      try {
+        await _initConnectivity();
+        await fetchProducts();
+        _addMockProducts();
+      } catch (e) {
+        debugPrint('Critical error in ProductProvider init: $e');
+      }
+    });
   }
 
   // ─── Initialize Connectivity Listener ───────────────────────────────

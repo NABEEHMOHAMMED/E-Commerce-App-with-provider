@@ -42,8 +42,8 @@ class CartProvider extends ChangeNotifier {
   double get totalPrice => subtotal;
 
   CartProvider() {
-    // تحميل السلة المحفوظة عند بدء التشغيل
-    _loadFromDisk();
+    // تحميل السلة المحفوظة في الخلفية
+    Future.microtask(() => _loadFromDisk());
   }
 
   void addToCart(Product product) {

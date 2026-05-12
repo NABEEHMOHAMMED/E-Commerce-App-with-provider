@@ -136,18 +136,18 @@ class CategoriesScreen extends StatelessWidget {
                     ),
                   );
                 }
-                return GridView.builder(
-                  physics: const BouncingScrollPhysics(),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 20,
-                    vertical: 8,
-                  ),
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 3,
-                    childAspectRatio: 0.85,
-                    crossAxisSpacing: 14,
-                    mainAxisSpacing: 14,
-                  ),
+return GridView.builder(
+                   physics: const BouncingScrollPhysics(),
+                   padding: const EdgeInsets.symmetric(
+                     horizontal: 20,
+                     vertical: 12,
+                   ),
+                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                     crossAxisCount: 3,
+                     childAspectRatio: 0.9,
+                     crossAxisSpacing: 12,
+                     mainAxisSpacing: 12,
+                   ),
                   itemCount: categories.length,
                   itemBuilder: (ctx, index) {
                     return _CategoryCard(category: categories[index]);
@@ -216,66 +216,66 @@ class _CategoryCard extends StatelessWidget {
         );
       },
       child: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              color.withValues(alpha: 0.15),
-              color.withValues(alpha: 0.05),
-            ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-          borderRadius: BorderRadius.circular(20),
+decoration: BoxDecoration(
+           gradient: LinearGradient(
+             colors: [
+               color.withValues(alpha: 0.12),
+               color.withValues(alpha: 0.03),
+             ],
+             begin: Alignment.topLeft,
+             end: Alignment.bottomRight,
+           ),
+           borderRadius: BorderRadius.circular(16),
           border: Border.all(color: color.withValues(alpha: 0.1), width: 1),
-          boxShadow: [
-            BoxShadow(
-              color: color.withValues(alpha: 0.08),
-              blurRadius: 12,
-              offset: const Offset(0, 4),
-            ),
-          ],
+boxShadow: [
+             BoxShadow(
+               color: color.withValues(alpha: 0.04),
+               blurRadius: 6,
+               offset: const Offset(0, 2),
+             ),
+           ],
         ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(14),
-              decoration: BoxDecoration(
-                color: color.withValues(alpha: 0.12),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(icon, color: color, size: 28),
-            ),
-            const SizedBox(height: 10),
-            Text(
-              category.name,
-              textAlign: TextAlign.center,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                color: AppTheme.textLightPrimary,
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            const SizedBox(height: 4),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-              decoration: BoxDecoration(
-                color: color.withValues(alpha: 0.08),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Text(
-                '${category.productCount} products',
-                style: TextStyle(
-                  color: color,
-                  fontSize: 9,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-          ],
-        ),
+child: Column(
+           mainAxisAlignment: MainAxisAlignment.center,
+           children: [
+             Container(
+               padding: const EdgeInsets.all(12),
+               decoration: BoxDecoration(
+                 color: color.withValues(alpha: 0.15),
+                 shape: BoxShape.circle,
+               ),
+               child: Icon(icon, color: color, size: 24),
+             ),
+             const SizedBox(height: 8),
+             Text(
+               category.name,
+               textAlign: TextAlign.center,
+               maxLines: 2,
+               overflow: TextOverflow.ellipsis,
+               style: TextStyle(
+                 color: AppTheme.textLightPrimary,
+                 fontSize: 11,
+                 fontWeight: FontWeight.w600,
+               ),
+             ),
+             const SizedBox(height: 2),
+             Container(
+               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+               decoration: BoxDecoration(
+                 color: color.withValues(alpha: 0.06),
+                 borderRadius: BorderRadius.circular(6),
+               ),
+               child: Text(
+                 '${category.productCount} products',
+                 style: TextStyle(
+                   color: color.withValues(alpha: 0.8),
+                   fontSize: 8,
+                   fontWeight: FontWeight.w500,
+                 ),
+               ),
+             ),
+           ],
+         ),
       ),
     );
   }
