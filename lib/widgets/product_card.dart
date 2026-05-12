@@ -182,13 +182,9 @@ class ProductCard extends StatelessWidget {
   String _getCategoryLabel(String categoryId) {
     const map = {
       'electronics': 'Electronics',
-      'clothing': 'Fashion',
-      'books': 'Books',
-      'sports': 'Sports',
-      'furniture': 'Furniture',
-      'beauty': 'Perfumes',
-      'racket': 'Racket',
-      'others': 'Others',
+      "men's clothing": 'Men Fashion',
+      "women's clothing": 'Women Fashion',
+      'jewelery': 'Jewelery',
     };
     return map[categoryId] ?? categoryId;
   }

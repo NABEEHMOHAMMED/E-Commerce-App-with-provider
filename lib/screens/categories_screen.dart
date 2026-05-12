@@ -64,23 +64,17 @@ class _CategoryGridCard extends StatelessWidget {
 
   static const Map<String, IconData> _icons = {
     'electronics': Icons.electrical_services_rounded,
-    'clothing': Icons.checkroom_rounded,
-    'sports': Icons.sports_tennis_rounded,
-    'beauty': Icons.local_drink_rounded,
-    'sports2': Icons.sports_football_rounded,
-    'beauty2': Icons.local_drink_rounded,
-    'backset': Icons.straighten_rounded,
-    'others': Icons.menu_book_rounded,
+    "men's clothing": Icons.checkroom_rounded,
+    "women's clothing": Icons.checkroom_rounded,
+    'jewelery': Icons.diamond_rounded,
+    'others': Icons.category_rounded,
   };
 
   static const Map<String, Color> _colors = {
     'electronics': Color(0xFF64B5F6),
-    'clothing': Color(0xFFE57373),
-    'sports': Color(0xFF81C784),
-    'beauty': Color(0xFFE57373),
-    'sports2': Color(0xFF9575CD),
-    'beauty2': Color(0xFFBA68C8),
-    'backset': Color(0xFF4DB6AC),
+    "men's clothing": Color(0xFFE57373),
+    "women's clothing": Color(0xFFF06292),
+    'jewelery': Color(0xFFFFD54F),
     'others': Color(0xFF90CAF9),
   };
 

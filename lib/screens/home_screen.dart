@@ -7,7 +7,6 @@ import '../providers/cart_provider.dart';
 import '../providers/favorite_provider.dart';
 import '../theme/app_theme.dart';
 import '../widgets/product_card.dart';
-import '../widgets/product_card.dart';
 import '../providers/navigation_provider.dart';
 import 'favorites_screen.dart';
 import 'cart_screen.dart';
@@ -126,12 +125,12 @@ class HomeScreen extends StatelessWidget {
                   size: 24,
                 ),
                 const SizedBox(height: 3),
-                Text(
+                const Text(
                   'Cart',
                   style: TextStyle(
-                    color: isSelected ? Colors.black87 : AppTheme.navInactive,
+                    color: Colors.black87,
                     fontSize: 10,
-                    fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
               ],
@@ -177,174 +176,270 @@ class MainHomeScreen extends StatelessWidget {
     return SafeArea(
       child: Consumer<ProductProvider>(
         builder: (ctx, productProvider, _) {
-          final products = productProvider.allProducts;
-          final todayDeals = products.take(4).toList();
-          final trending = products.skip(4).take(4).toList();
+          // Build status banner if needed
+          final showStatusBanner = productProvider.errorMessage != null &&
+              productProvider.allProducts.isNotEmpty;
 
           return CustomScrollView(
             physics: const BouncingScrollPhysics(),
             slivers: [
-              // ─── Header ──────────────────────────────────────
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Today Deals',
-                            style: TextStyle(
-                              color: AppTheme.textLightPrimary,
-                              fontSize: 22,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          Text(
-                            'Items opened for today only',
-                            style: TextStyle(
-                              color: AppTheme.textLightMuted,
-                              fontSize: 12,
-                            ),
-                          ),
-                        ],
+              // ─── Status Banner ───────────────────────────────────────
+              if (showStatusBanner)
+                SliverToBoxAdapter(
+                  child: Container(
+                    width: double.infinity,
+                    margin: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [AppTheme.orangeAccent.withOpacity(0.9), AppTheme.neonRed.withOpacity(0.9)],
+                        begin: Alignment.centerLeft,
+                        end: Alignment.centerRight,
                       ),
-                      GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => AllProductsScreen(
-                                title: 'Today Deals',
-                                products: products,
-                              ),
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppTheme.orangeAccent.withOpacity(0.3),
+                          blurRadius: 8,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          productProvider.isConnected
+                              ? Icons.warning_rounded
+                              : Icons.wifi_off_rounded,
+                          color: Colors.white,
+                          size: 20,
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            productProvider.errorMessage ?? '',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
                             ),
-                          );
-                        },
-                        child: Text(
-                          'See all',
-                          style: TextStyle(
-                            color: AppTheme.orangeAccent,
-                            fontSize: 13,
-                            fontWeight: FontWeight.w600,
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
-              ),
 
-              // ─── Today Deals (Horizontal scroll) ─────────────
-              SliverToBoxAdapter(
-                child: SizedBox(
-                  height: 260,
-                  child: ListView.builder(
-                    physics: const BouncingScrollPhysics(),
-                    scrollDirection: Axis.horizontal,
-                    padding: const EdgeInsets.fromLTRB(20, 12, 20, 12),
-                    itemCount: todayDeals.length,
-                    itemBuilder: (ctx, i) => Padding(
-                      padding: EdgeInsets.only(right: i < todayDeals.length - 1 ? 12 : 0),
-                      child: GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => ProductDetailScreen(product: todayDeals[i]),
-                            ),
-                          );
-                        },
-                        child: ProductCard(product: todayDeals[i]),
+              // ─── Loading State ───────────────────────────────────────
+              if (productProvider.isLoading && productProvider.allProducts.isEmpty)
+                SliverToBoxAdapter(
+                  child: SizedBox(
+                    height: 400,
+                    child: const Center(
+                      child: CircularProgressIndicator(
+                        color: AppTheme.orangeAccent,
                       ),
                     ),
                   ),
                 ),
-              ),
 
-              // ─── Trending Header ─────────────────────────────
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 8, 20, 0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+              // ─── Empty State ─────────────────────────────────────────
+              if (!productProvider.isLoading && productProvider.allProducts.isEmpty)
+                SliverToBoxAdapter(
+                  child: SizedBox(
+                    height: 400,
+                    child: Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
+                          const Icon(Icons.error_outline, size: 60, color: Colors.red),
+                          const SizedBox(height: 16),
                           Text(
-                            'Trending',
-                            style: TextStyle(
-                              color: AppTheme.textLightPrimary,
-                              fontSize: 22,
-                              fontWeight: FontWeight.bold,
-                            ),
+                            productProvider.errorMessage ?? 'No products found.',
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(color: Colors.red),
                           ),
-                          Text(
-                            'Most loved styles and gadgets right now',
-                            style: TextStyle(
-                              color: AppTheme.textLightMuted,
-                              fontSize: 12,
-                            ),
+                          const SizedBox(height: 16),
+                          ElevatedButton(
+                            onPressed: () => productProvider.fetchProducts(),
+                            child: const Text('Retry'),
                           ),
                         ],
-                      ),
-                      GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => AllProductsScreen(
-                                title: 'Trending',
-                                products: products.reversed.toList(),
-                              ),
-                            ),
-                          );
-                        },
-                        child: Text(
-                          'See all',
-                          style: TextStyle(
-                            color: AppTheme.orangeAccent,
-                            fontSize: 13,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-
-              // ─── Trending (Horizontal scroll) ─────────────────
-              SliverToBoxAdapter(
-                child: SizedBox(
-                  height: 260,
-                  child: ListView.builder(
-                    physics: const BouncingScrollPhysics(),
-                    scrollDirection: Axis.horizontal,
-                    padding: const EdgeInsets.fromLTRB(20, 12, 20, 12),
-                    itemCount: trending.length,
-                    itemBuilder: (ctx, i) => Padding(
-                      padding: EdgeInsets.only(right: i < trending.length - 1 ? 12 : 0),
-                      child: GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => ProductDetailScreen(product: trending[i]),
-                            ),
-                          );
-                        },
-                        child: ProductCard(product: trending[i]),
                       ),
                     ),
                   ),
                 ),
-              ),
 
-              const SliverToBoxAdapter(child: SizedBox(height: 16)),
+              // ─── Products Found ──────────────────────────────────────
+              if (productProvider.allProducts.isNotEmpty) ...[
+                // ─── Header ──────────────────────────────────────
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'Today Deals',
+                              style: TextStyle(
+                                color: AppTheme.textLightPrimary,
+                                fontSize: 22,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const Text(
+                              'Items opened for today only',
+                              style: TextStyle(
+                                color: AppTheme.textLightMuted,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ],
+                        ),
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => AllProductsScreen(
+                                  title: 'Today Deals',
+                                  products: productProvider.allProducts,
+                                ),
+                              ),
+                            );
+                          },
+                          child: const Text(
+                            'See all',
+                            style: TextStyle(
+                              color: AppTheme.orangeAccent,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
+                // ─── Today Deals (Horizontal scroll) ─────────────
+                SliverToBoxAdapter(
+                  child: SizedBox(
+                    height: 260,
+                    child: ListView.builder(
+                      physics: const BouncingScrollPhysics(),
+                      scrollDirection: Axis.horizontal,
+                      padding: const EdgeInsets.fromLTRB(20, 12, 20, 12),
+                      itemCount: productProvider.allProducts.take(5).length,
+                      itemBuilder: (ctx, i) {
+                        final product = productProvider.allProducts[i];
+                        return Padding(
+                          padding: EdgeInsets.only(right: i < 4 ? 12 : 0),
+                          child: GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => ProductDetailScreen(product: product),
+                                ),
+                              );
+                            },
+                            child: ProductCard(product: product),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ),
+
+                // ─── Trending Header ─────────────────────────────
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 8, 20, 0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'Trending',
+                              style: TextStyle(
+                                color: AppTheme.textLightPrimary,
+                                fontSize: 22,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const Text(
+                              'Most loved styles and gadgets right now',
+                              style: TextStyle(
+                                color: AppTheme.textLightMuted,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ],
+                        ),
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => AllProductsScreen(
+                                  title: 'Trending',
+                                  products: productProvider.allProducts.reversed.toList(),
+                                ),
+                              ),
+                            );
+                          },
+                          child: const Text(
+                            'See all',
+                            style: TextStyle(
+                              color: AppTheme.orangeAccent,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
+                // ─── Trending (Horizontal scroll) ─────────────────
+                SliverToBoxAdapter(
+                  child: SizedBox(
+                    height: 260,
+                    child: ListView.builder(
+                      physics: const BouncingScrollPhysics(),
+                      scrollDirection: Axis.horizontal,
+                      padding: const EdgeInsets.fromLTRB(20, 12, 20, 12),
+                      itemCount: productProvider.allProducts.skip(5).take(5).length,
+                      itemBuilder: (ctx, i) {
+                        final product = productProvider.allProducts[i + 5];
+                        return Padding(
+                          padding: EdgeInsets.only(right: i < 4 ? 12 : 0),
+                          child: GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => ProductDetailScreen(product: product),
+                                ),
+                              );
+                            },
+                            child: ProductCard(product: product),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ),
+
+                const SliverToBoxAdapter(child: SizedBox(height: 16)),
+              ],
             ],
           );
         },

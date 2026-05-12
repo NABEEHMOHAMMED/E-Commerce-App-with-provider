@@ -29,7 +29,12 @@ class ProfileScreen extends StatelessWidget {
                       gradient: AppTheme.primaryGradient,
                       boxShadow: [
                         BoxShadow(
-                          color: AppTheme.neonPurple.withOpacity(0.3),
+                          color: const Color.fromARGB(
+                            255,
+                            33,
+                            9,
+                            217,
+                          ).withOpacity(0.3),
                           blurRadius: 18,
                           spreadRadius: 2,
                         ),
@@ -39,7 +44,7 @@ class ProfileScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 14),
                   const Text(
-                    'NABEEH MOHAMMED',
+                    'SAKHER MOHAMMED',
                     style: TextStyle(
                       color: AppTheme.textLightPrimary,
                       fontSize: 22,
@@ -48,7 +53,7 @@ class ProfileScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   const Text(
-                    'nabeehmohammedtaher@email.com',
+                    'sakhermohammed@email.com',
                     style: TextStyle(
                       color: AppTheme.textLightMuted,
                       fontSize: 13,
