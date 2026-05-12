@@ -2,276 +2,580 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/cart_provider.dart';
 import '../providers/navigation_provider.dart';
+import '../theme/app_theme.dart';
 
 class CartScreen extends StatelessWidget {
   const CartScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: const Color(0xFF1E1F2A), // Dark background matching image
-      child: SafeArea(
-        child: Column(
-          children: [
-            // ─── Header ──────────────────────────────────────────
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
-              child: Row(
-                children: [
-                  GestureDetector(
-                    onTap: () {
-                      if (Navigator.of(context).canPop()) {
-                        Navigator.of(context).pop();
-                      } else {
-                        // If it's a tab, go back to Home tab
-                        Provider.of<NavigationProvider>(
-                          context,
-                          listen: false,
-                        ).goHome();
-                      }
-                    },
-                    child: const Icon(
-                      Icons.arrow_back_ios_new_rounded,
-                      color: Colors.white,
-                      size: 20,
-                    ),
-                  ),
-                  const Spacer(),
-                  const Text(
-                    'Shopping Cart',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const Spacer(),
-                  const SizedBox(width: 20), // Balance the back button
-                ],
-              ),
+    return Scaffold(
+      backgroundColor: AppTheme.bgLight,
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        leading: GestureDetector(
+          onTap: () {
+            if (Navigator.of(context).canPop()) {
+              Navigator.of(context).pop();
+            } else {
+              Provider.of<NavigationProvider>(context, listen: false).goHome();
+            }
+          },
+          child: Container(
+            margin: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: AppTheme.bgLightSurface,
+              shape: BoxShape.circle,
             ),
-            const SizedBox(height: 10),
-
-            // ─── List ────────────────────────────────────────────
-            Expanded(
-              child: Consumer<CartProvider>(
-                builder: (ctx, cart, _) {
-                  if (cart.items.isEmpty) {
-                    return const Center(
-                      child: Text(
-                        'Cart is empty',
-                        style: TextStyle(color: Colors.white, fontSize: 18),
-                      ),
-                    );
-                  }
-
-                  return ListView.builder(
-                    physics: const BouncingScrollPhysics(),
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    itemCount: cart.items.length,
-                    itemBuilder: (ctx, index) {
-                      final item = cart.items[index];
-                      return Container(
-                        margin: const EdgeInsets.only(bottom: 16),
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF2A2B36), // Item card color
-                          borderRadius: BorderRadius.circular(16),
+            child: const Icon(Icons.arrow_back_ios_new_rounded,
+                color: AppTheme.textLightPrimary, size: 18),
+          ),
+        ),
+        title: const Text(
+          'Shopping Cart',
+          style: TextStyle(
+            color: AppTheme.textLightPrimary,
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            
+          ),
+        ),
+        centerTitle: true,
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 8),
+            child: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: AppTheme.neonRed.withValues(alpha: 0.08),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(Icons.delete_outline_rounded,
+                  color: AppTheme.neonRed, size: 20),
+            ),
+          ),
+        ],
+      ),
+      body: Column(
+        children: [
+          // ─── Cart Header Stats ──────────────────────────
+          Consumer<CartProvider>(
+            builder: (ctx, cart, _) {
+              if (cart.items.isEmpty) {
+                return _buildEmptyCart();
+              }
+              return Container(
+                width: double.infinity,
+                padding: const EdgeInsets.fromLTRB(20, 20, 20, 16),
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.vertical(
+                    bottom: Radius.circular(24),
+                  ),
+                ),
+                child: Column(
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            gradient: AppTheme.primaryGradient,
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: const Icon(
+                            Icons.shopping_cart_rounded,
+                            color: Colors.white,
+                            size: 24,
+                          ),
                         ),
-                        child: Row(
+                        const SizedBox(width: 14),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            // ─── صورة المنتج ───────────────────
-                            ClipRRect(
-                              borderRadius: BorderRadius.circular(12),
-                              child: Image.network(
-                                item.product.imageUrl,
-                                width: 80,
-                                height: 80,
-                                fit: BoxFit.cover,
-                                errorBuilder: (_, _, _) => Container(
-                                  width: 80,
-                                  height: 80,
-                                  color: Colors.grey[800],
-                                  child: const Icon(
-                                    Icons.image_not_supported,
-                                    color: Colors.white54,
-                                  ),
-                                ),
+                            Text(
+                              '${cart.itemCount} items',
+                              style: const TextStyle(
+                                color: AppTheme.textLightMuted,
+                                fontSize: 13,
+                                
                               ),
                             ),
-                            const SizedBox(width: 16),
-
-                            // ─── بيانات المنتج ─────────────────
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    item.product.name,
-                                    maxLines: 2,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    item.product.timeLeft ?? 'So / lorteit',
-                                    style: const TextStyle(
-                                      color: Color(0xFFFF7043), // Orange accent
-                                      fontSize: 12,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    '\$${item.product.price.toStringAsFixed(2)}',
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 15,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-
-                            // ─── زر الحذف (-) ───────────────────
-                            GestureDetector(
-                              onTap: () => cart.removeFromCart(item.product.id),
-                              child: Container(
-                                padding: const EdgeInsets.all(4),
-                                decoration: const BoxDecoration(
-                                  color: Color(
-                                    0xFFF05B43,
-                                  ), // Reddish orange circle
-                                  shape: BoxShape.circle,
-                                ),
-                                child: const Icon(
-                                  Icons.remove,
-                                  color: Colors.white,
-                                  size: 16,
-                                ),
+                            Text(
+                              'Total: \$${cart.totalPrice.toStringAsFixed(2)}',
+                              style: const TextStyle(
+                                color: AppTheme.textLightPrimary,
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                                
                               ),
                             ),
                           ],
                         ),
-                      );
-                    },
-                  );
-                },
-              ),
-            ),
+                        const Spacer(),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 12, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: AppTheme.primaryPurple.withValues(alpha: 0.08),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: const Text(
+                            '3-5 day delivery',
+                            style: TextStyle(
+                              color: AppTheme.primaryPurple,
+                              fontSize: 10,
+                              fontWeight: FontWeight.w700,
+                              
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    // ─── Discount Code ───────────────────
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 14),
+                      height: 44,
+                      decoration: BoxDecoration(
+                        color: AppTheme.bgLightSurface,
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(color: Colors.grey.withValues(alpha: 0.1)),
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.local_offer_rounded,
+                              color: AppTheme.accentOrange, size: 18),
+                          const SizedBox(width: 10),
+                          const Expanded(
+                            child: TextField(
+                              decoration: InputDecoration(
+                                hintText: 'Apply coupon code',
+                                hintStyle: TextStyle(
+                                  color: AppTheme.textLightMuted,
+                                  fontSize: 13,
+                                  
+                                ),
+                                border: InputBorder.none,
+                              ),
+                            ),
+                          ),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 14, vertical: 8),
+                            decoration: BoxDecoration(
+                              gradient: AppTheme.yellowGradient,
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: const Text(
+                              'Apply',
+                              style: TextStyle(
+                                color: Colors.black87,
+                                fontSize: 11,
+                                fontWeight: FontWeight.w700,
+                                
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
 
-            // ─── Total + Checkout ────────────────────────────────
-            Consumer<CartProvider>(
+          // ─── Cart Items List ───────────────────────────
+          Expanded(
+            child: Consumer<CartProvider>(
               builder: (ctx, cart, _) {
-                if (cart.items.isEmpty) return const SizedBox.shrink();
+                if (cart.items.isEmpty) {
+                  return const SizedBox.shrink();
+                }
+                return ListView.builder(
+                  physics: const BouncingScrollPhysics(),
+                  padding: const EdgeInsets.all(16),
+                  itemCount: cart.items.length,
+                  itemBuilder: (ctx, index) {
+                    final item = cart.items[index];
+                    return _buildCartItem(context, cart, item);
+                  },
+                );
+              },
+            ),
+          ),
 
-                return Padding(
-                  padding: const EdgeInsets.all(24),
-                  child: Column(
-                    children: [
-                      Row(
+          // ─── Checkout Section ──────────────────────────
+          Consumer<CartProvider>(
+            builder: (ctx, cart, _) {
+              if (cart.items.isEmpty) return const SizedBox.shrink();
+
+              return Container(
+                padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black12,
+                      blurRadius: 16,
+                      offset: Offset(0, -4),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  children: [
+                    // Price breakdown
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 14, vertical: 14),
+                      decoration: BoxDecoration(
+                        color: AppTheme.bgLightSurface,
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Text(
-                            'Total:',
+                          Text(
+                            'Subtotal (${cart.itemCount} items)',
                             style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
+                              color: AppTheme.textLightMuted,
+                              fontSize: 13,
+                              
                             ),
                           ),
                           Text(
                             '\$${cart.totalPrice.toStringAsFixed(2)}',
                             style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
+                              color: AppTheme.textLightPrimary,
+                              fontSize: 15,
+                              fontWeight: FontWeight.w700,
+                              
                             ),
                           ),
                         ],
                       ),
-                      const SizedBox(height: 20),
-                      GestureDetector(
-                        onTap: () {
+                    ),
+                    const SizedBox(height: 14),
+                    // Checkout Button
+                    SizedBox(
+                      width: double.infinity,
+                      height: 52,
+                      child: ElevatedButton.icon(
+                        onPressed: () {
                           showDialog(
                             context: context,
-                            builder: (ctx) => AlertDialog(
-                              backgroundColor: const Color(0xFF2A2B36),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(16),
-                              ),
-                              title: const Row(
-                                children: [
-                                  Icon(
-                                    Icons.check_circle,
-                                    color: Colors.green,
-                                    size: 28,
-                                  ),
-                                  SizedBox(width: 10),
-                                  Expanded(
-                                    child: Text(
-                                      'Order Successful',
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              content: const Text(
-                                'Thank you! Your order has been placed successfully.',
-                                style: TextStyle(
-                                  color: Colors.white70,
-                                  fontSize: 16,
-                                ),
-                              ),
-                              actions: [
-                                TextButton(
-                                  onPressed: () {
-                                    Navigator.pop(ctx); // Close dialog
-                                    cart.clearCart(); // Clear cart
-                                  },
-                                  child: const Text(
-                                    'Done',
-                                    style: TextStyle(
-                                      color: Color(0xFFFFCA28),
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
+                            builder: (ctx) => _buildOrderDialog(ctx, cart),
                           );
                         },
-                        child: Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.symmetric(vertical: 18),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFFFCA28), // Yellow button
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          child: const Center(
-                            child: Text(
-                              'Checkout',
-                              style: TextStyle(
-                                color: Colors.black,
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
+                        icon: const Icon(Icons.lock_rounded, size: 20),
+                        label: const Text(
+                          'Proceed to Checkout',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                            
                           ),
                         ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppTheme.primaryPurple,
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          elevation: 4,
+                          shadowColor:
+                              AppTheme.primaryPurple.withValues(alpha: 0.3),
+                        ),
                       ),
-                    ],
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEmptyCart() {
+    return Expanded(
+      child: Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 120,
+              height: 120,
+              decoration: BoxDecoration(
+                color: AppTheme.bgLightSurface,
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.shopping_cart_outlined,
+                size: 50,
+                color: AppTheme.textLightMuted,
+              ),
+            ),
+            const SizedBox(height: 16),
+            const Text(
+              'Your cart is empty',
+              style: TextStyle(
+                color: AppTheme.textLightPrimary,
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                
+              ),
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              'Add items to your cart to see them here.',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: AppTheme.textLightMuted,
+                fontSize: 13,
+              ),
+            ),
+            const SizedBox(height: 20),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              decoration: BoxDecoration(
+                gradient: AppTheme.primaryGradient,
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: const Text(
+                'Start Shopping',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w700,
+                  fontSize: 14,
+                  
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCartItem(
+      BuildContext context, CartProvider cart, CartItem item) {
+    return Dismissible(
+      key: Key(item.product.id),
+      direction: DismissDirection.endToStart,
+      background: Container(
+        alignment: Alignment.centerRight,
+        padding: const EdgeInsets.only(right: 20),
+        decoration: BoxDecoration(
+          color: AppTheme.neonRed,
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: const Icon(Icons.delete_outline_rounded,
+            color: Colors.white, size: 24),
+      ),
+      onDismissed: (_) => cart.removeFromCart(item.product.id),
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 12),
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.05),
+              blurRadius: 10,
+              offset: const Offset(0, 3),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: Image.network(
+                item.product.imageUrl,
+                width: 80,
+                height: 80,
+                fit: BoxFit.cover,
+                errorBuilder: (_, __, _) => Container(
+                  width: 80,
+                  height: 80,
+                  decoration: BoxDecoration(
+                    color: AppTheme.bgLightSurface,
+                    borderRadius: BorderRadius.circular(12),
                   ),
-                );
-              },
+                  child: const Icon(Icons.image_not_supported,
+                      color: AppTheme.textLightMuted, size: 30),
+                ),
+              ),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    item.product.name,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      color: AppTheme.textLightPrimary,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    item.product.timeLeft ?? 'Limited time',
+                    style: const TextStyle(
+                      color: AppTheme.accentOrange,
+                      fontSize: 11,
+                      fontWeight: FontWeight.w500,
+                      
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    '\$${item.product.price.toStringAsFixed(2)}',
+                    style: const TextStyle(
+                      color: AppTheme.primaryPurple,
+                      fontSize: 15,
+                      fontWeight: FontWeight.bold,
+                      
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            // Quantity Controls
+            Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Colors.grey.withValues(alpha: 0.2)),
+              ),
+              child: Column(
+                children: [
+                  GestureDetector(
+                    onTap: () => cart.increaseQuantity(item.product.id),
+                    child: Container(
+                      width: 28,
+                      height: 28,
+                      decoration: BoxDecoration(
+                        color: AppTheme.primaryPurple.withValues(alpha: 0.1),
+                        borderRadius: const BorderRadius.only(
+                            topLeft: Radius.circular(12),
+                            topRight: Radius.circular(12)),
+                      ),
+                      child: const Icon(Icons.add_rounded,
+                          color: AppTheme.primaryPurple, size: 16),
+                    ),
+                  ),
+                  Text(
+                    '${item.quantity}',
+                    style: const TextStyle(
+                      color: AppTheme.textLightPrimary,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: () => cart.decreaseQuantity(item.product.id),
+                    child: Container(
+                      width: 28,
+                      height: 28,
+                      decoration: BoxDecoration(
+                        color: AppTheme.neonRed.withValues(alpha: 0.1),
+                        borderRadius: const BorderRadius.only(
+                            bottomLeft: Radius.circular(12),
+                            bottomRight: Radius.circular(12)),
+                      ),
+                      child: const Icon(Icons.remove_rounded,
+                          color: AppTheme.neonRed, size: 16),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildOrderDialog(BuildContext context, CartProvider cart) {
+    return Dialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+      backgroundColor: Colors.white,
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: AppTheme.primaryPurple.withValues(alpha: 0.08),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(Icons.check_circle_rounded,
+                  color: AppTheme.primaryPurple, size: 40),
+            ),
+            const SizedBox(height: 16),
+            const Text(
+              'Order Confirmed!',
+              style: TextStyle(
+                color: AppTheme.textLightPrimary,
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+                
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Total: \$${cart.totalPrice.toStringAsFixed(2)}',
+              style: TextStyle(
+                color: AppTheme.textLightMuted,
+                fontSize: 16,
+                
+              ),
+            ),
+            const SizedBox(height: 4),
+            const Text(
+              'Thank you for your purchase!',
+              style: TextStyle(
+                color: AppTheme.textLightMuted,
+                fontSize: 13,
+              ),
+            ),
+            const SizedBox(height: 24),
+            SizedBox(
+              width: double.infinity,
+              height: 48,
+              child: ElevatedButton(
+                onPressed: () {
+                  cart.clearCart();
+                  Navigator.pop(context);
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppTheme.primaryPurple,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14)),
+                ),
+                child: const Text(
+                  'Done',
+                  style: TextStyle(
+                    fontWeight: FontWeight.w700,
+                    fontSize: 16,
+                    
+                  ),
+                ),
+              ),
             ),
           ],
         ),

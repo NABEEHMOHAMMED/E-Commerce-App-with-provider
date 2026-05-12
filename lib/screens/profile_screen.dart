@@ -6,121 +6,283 @@ class ProfileScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: SingleChildScrollView(
+    return Scaffold(
+      backgroundColor: AppTheme.bgLight,
+      body: CustomScrollView(
         physics: const BouncingScrollPhysics(),
-        child: Column(
-          children: [
-            // ─── Header ─────────────────────────────────────────
-            Container(
+        slivers: [
+          // ─── Header Section ──────────────────────────────────
+          SliverToBoxAdapter(
+            child: Container(
               width: double.infinity,
-              padding: const EdgeInsets.fromLTRB(20, 30, 20, 30),
+              padding: const EdgeInsets.fromLTRB(20, 50, 20, 30),
               decoration: const BoxDecoration(
-                color: Colors.white,
+                gradient: AppTheme.heroGradient,
+                borderRadius: BorderRadius.vertical(
+                  bottom: Radius.circular(32),
+                ),
               ),
               child: Column(
                 children: [
                   // Avatar
                   Container(
-                    width: 88,
-                    height: 88,
+                    width: 90,
+                    height: 90,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      gradient: AppTheme.primaryGradient,
+                      border: Border.all(color: Colors.white, width: 3),
                       boxShadow: [
                         BoxShadow(
-                          color: const Color.fromARGB(
-                            255,
-                            33,
-                            9,
-                            217,
-                          ).withValues(alpha: 0.3),
-                          blurRadius: 18,
-                          spreadRadius: 2,
+                          color: Colors.black.withValues(alpha: 0.2),
+                          blurRadius: 16,
+                          offset: const Offset(0, 6),
                         ),
                       ],
                     ),
-                    child: const Icon(Icons.person_rounded, color: Colors.white, size: 44),
+                    child: Container(
+                      decoration: const BoxDecoration(
+                        gradient: AppTheme.primaryGradient,
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.person_rounded,
+                        color: Colors.white,
+                        size: 44,
+                      ),
+                    ),
                   ),
                   const SizedBox(height: 14),
                   const Text(
-                    'SAKHER MOHAMMED',
+                    'NABEEH MOHAMMED',
                     style: TextStyle(
-                      color: AppTheme.textLightPrimary,
+                      color: Colors.white,
                       fontSize: 22,
                       fontWeight: FontWeight.bold,
+                      
+                      letterSpacing: 1.5,
                     ),
                   ),
-                  const SizedBox(height: 4),
-                  const Text(
-                    'sakhermohammed@email.com',
+                  const SizedBox(height: 6),
+                  Text(
+                    'nabeehmohammed@email.com',
                     style: TextStyle(
-                      color: AppTheme.textLightMuted,
+                      color: Colors.white.withValues(alpha: 0.8),
                       fontSize: 13,
+                      
                     ),
+                  ),
+                  const SizedBox(height: 16),
+                  // Stats Row
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      _buildStat('Orders', '24'),
+                      _buildDivider(),
+                      _buildStat('Wishlist', '18'),
+                      _buildDivider(),
+                      _buildStat('Reviews', '12'),
+                    ],
                   ),
                 ],
               ),
             ),
+          ),
 
-            const SizedBox(height: 8),
+          // ─── Menu Items ─────────────────────────────────────
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Account Settings',
+                    style: TextStyle(
+                      color: AppTheme.textLightPrimary,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  _buildMenuItem(
+                    Icons.shopping_bag_rounded,
+                    'My Orders',
+                    color: AppTheme.primaryPurple,
+                    onTap: () {},
+                  ),
+                  _buildMenuItem(
+                    Icons.local_shipping_rounded,
+                    'Shipping Address',
+                    color: AppTheme.accentTeal,
+                    onTap: () {},
+                  ),
+                  _buildMenuItem(
+                    Icons.payment_rounded,
+                    'Payment Methods',
+                    color: AppTheme.neonYellow,
+                    onTap: () {},
+                  ),
+                  _buildMenuItem(
+                    Icons.notifications_rounded,
+                    'Notifications',
+                    color: AppTheme.accentPink,
+                    onTap: () {},
+                  ),
+                  _buildMenuItem(
+                    Icons.favorite_border_rounded,
+                    'My Wishlist',
+                    color: AppTheme.neonPink,
+                    onTap: () {},
+                  ),
+                  _buildMenuItem(
+                    Icons.lock_outline_rounded,
+                    'Privacy & Security',
+                    color: AppTheme.neonCyan,
+                    onTap: () {},
+                  ),
+                  _buildMenuItem(
+                    Icons.help_outline_rounded,
+                    'Help & Support',
+                    color: AppTheme.neonBlue,
+                    onTap: () {},
+                  ),
+                  _buildMenuItem(
+                    Icons.language_rounded,
+                    'Language',
+                    color: AppTheme.accentOrange,
+                    onTap: () {},
+                  ),
+                  const SizedBox(height: 8),
+                  const Divider(height: 1),
+                  const SizedBox(height: 8),
+                  _buildMenuItem(
+                    Icons.logout_rounded,
+                    'Log Out',
+                    color: AppTheme.neonRed,
+                    isDestructive: true,
+                    onTap: () {},
+                  ),
+                  const SizedBox(height: 20),
+                ],
+              ),
+            ),
+          ),
 
-            // ─── Menu Items ─────────────────────────────────────
-            Container(
-              color: Colors.white,
+          // ─── App Info ──────────────────────────────────────
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Column(
                 children: [
-                  _buildMenuItem(Icons.shopping_bag_outlined, 'My Orders'),
-                  _buildMenuItem(Icons.location_on_outlined, 'Shipping Address'),
-                  _buildMenuItem(Icons.payment_outlined, 'Payment Methods'),
-                  _buildMenuItem(Icons.notifications_outlined, 'Notifications'),
-                  _buildMenuItem(Icons.lock_outline_rounded, 'Privacy & Security'),
-                  _buildMenuItem(Icons.help_outline_rounded, 'Help & Support'),
-                  _buildMenuItem(Icons.logout_rounded, 'Log Out', isLogout: true),
+                  Container(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    decoration: BoxDecoration(
+                      color: AppTheme.bgLightSurface,
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(Icons.info_outline_rounded,
+                            color: AppTheme.textLightMuted, size: 18),
+                        const SizedBox(width: 8),
+                        Text(
+                          'ShopWave v1.0.0',
+                          style: TextStyle(
+                            color: AppTheme.textLightMuted,
+                            fontSize: 13,
+                            
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 30),
                 ],
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 
-  Widget _buildMenuItem(IconData icon, String label, {bool isLogout = false}) {
+  Widget _buildStat(String label, String value) {
+    return Expanded(
+      child: Column(
+        children: [
+          Text(
+            value,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              
+            ),
+          ),
+          const SizedBox(height: 2),
+          Text(
+            label,
+            style: const TextStyle(
+              color: Colors.white70,
+              fontSize: 11,
+              
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDivider() {
     return Container(
+      width: 1,
+      height: 30,
+      color: Colors.white.withValues(alpha: 0.2),
+    );
+  }
+
+  Widget _buildMenuItem(
+    IconData icon,
+    String label, {
+    required Color color,
+    bool isDestructive = false,
+    required VoidCallback onTap,
+  }) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 4),
       decoration: BoxDecoration(
-        border: Border(
-          bottom: BorderSide(color: Colors.grey.shade100),
-        ),
+        color: isDestructive
+            ? color.withValues(alpha: 0.05)
+            : color.withValues(alpha: 0.05),
+        borderRadius: BorderRadius.circular(14),
       ),
       child: ListTile(
+        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
         leading: Container(
-          padding: const EdgeInsets.all(8),
+          padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
-            color: isLogout
-                ? AppTheme.neonRed.withValues(alpha: 0.1)
-                : AppTheme.blueAccent.withValues(alpha: 0.08),
-            borderRadius: BorderRadius.circular(10),
+            color: color.withValues(alpha: 0.1),
+            borderRadius: BorderRadius.circular(12),
           ),
-          child: Icon(
-            icon,
-            color: isLogout ? AppTheme.neonRed : AppTheme.blueAccent,
-            size: 20,
-          ),
+          child: Icon(icon, color: color, size: 22),
         ),
         title: Text(
           label,
           style: TextStyle(
-            color: isLogout ? AppTheme.neonRed : AppTheme.textLightPrimary,
+            color: isDestructive ? color : AppTheme.textLightPrimary,
             fontSize: 14,
             fontWeight: FontWeight.w500,
+            
           ),
         ),
-        trailing: isLogout
-            ? null
-            : Icon(Icons.arrow_forward_ios_rounded,
-                size: 14, color: AppTheme.textLightMuted),
-        onTap: () {},
+        trailing: Icon(
+          Icons.chevron_right_rounded,
+          color: AppTheme.textLightMuted,
+          size: 20,
+        ),
+        onTap: onTap,
       ),
     );
   }

@@ -37,20 +37,84 @@ class AllProductsScreen extends StatelessWidget {
           title,
           style: const TextStyle(
             color: AppTheme.textLightPrimary,
-            fontSize: 18,
+            fontSize: 20,
             fontWeight: FontWeight.bold,
           ),
         ),
         centerTitle: true,
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 8),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              decoration: BoxDecoration(
+                color: AppTheme.primaryPurple.withValues(alpha: 0.08),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Icons.grid_view_rounded,
+                      color: AppTheme.primaryPurple, size: 18),
+                  const SizedBox(width: 4),
+                  Text(
+                    '${products.length}',
+                    style: const TextStyle(
+                      color: AppTheme.primaryPurple,
+                      fontWeight: FontWeight.w700,
+                      fontSize: 12,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
       body: products.isEmpty
-          ? const Center(child: Text('No products found'))
+          ? Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(24),
+                    decoration: BoxDecoration(
+                      gradient: AppTheme.primaryGradient,
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(Icons.search_off_rounded,
+                        size: 48, color: Colors.white),
+                  ),
+                  const SizedBox(height: 16),
+                  const Text(
+                    'No products found',
+                    style: TextStyle(
+                      color: AppTheme.textLightPrimary,
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 40),
+                    child: Text(
+                      'No products match your search criteria.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: AppTheme.textLightMuted,
+                        fontSize: 13,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            )
           : GridView.builder(
               physics: const BouncingScrollPhysics(),
               padding: const EdgeInsets.all(16),
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 2,
-                childAspectRatio: 0.72, // Adjusted for premium look
+                childAspectRatio: 0.7,
                 crossAxisSpacing: 12,
                 mainAxisSpacing: 12,
               ),

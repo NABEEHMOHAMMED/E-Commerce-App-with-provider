@@ -17,92 +17,100 @@ class ProductDetailScreen extends StatelessWidget {
       body: CustomScrollView(
         physics: const BouncingScrollPhysics(),
         slivers: [
-          // ─── صورة المنتج + AppBar ──────────────────────────────
+          // ─── Hero Image + Floating App Bar ─────────────────────────────
           SliverAppBar(
-            expandedHeight: 320,
+            expandedHeight: 340,
             pinned: true,
-            backgroundColor: Colors.white,
-            leading: GestureDetector(
-              onTap: () => Navigator.of(context).pop(),
-              child: Container(
-                margin: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  shape: BoxShape.circle,
-                  boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.1), blurRadius: 8)],
-                ),
-                child: const Icon(Icons.arrow_back_ios_new_rounded,
-                    color: AppTheme.textLightPrimary, size: 18),
-              ),
-            ),
+            backgroundColor: AppTheme.primaryPurple,
+            leading: _buildCircleBackButton(context),
             actions: [
-              Consumer<FavoriteProvider>(
-                builder: (ctx, favProvider, _) {
-                  final isFav = favProvider.isFavorite(product);
-                  return GestureDetector(
-                    onTap: () => favProvider.toggleFavorite(product),
-                    child: Container(
-                      margin: const EdgeInsets.all(8),
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        shape: BoxShape.circle,
-                        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.1), blurRadius: 8)],
-                      ),
-                      child: Icon(
-                        isFav ? Icons.favorite_rounded : Icons.favorite_border_rounded,
-                        color: isFav ? AppTheme.neonPink : AppTheme.navInactive,
-                        size: 20,
-                      ),
-                    ),
-                  );
-                },
+              _buildCircleActionButton(
+                context,
+                icon: Icons.share_rounded,
+                onTap: () {},
               ),
             ],
             flexibleSpace: FlexibleSpaceBar(
+              centerTitle: true,
+              title: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                decoration: BoxDecoration(
+                  color: Colors.black.withValues(alpha: 0.3),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(
+                  product.name.length > 25
+                      ? '${product.name.substring(0, 25)}...'
+                      : product.name,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    
+                  ),
+                ),
+              ),
               background: Stack(
                 fit: StackFit.expand,
                 children: [
                   Image.network(
                     product.imageUrl,
                     fit: BoxFit.cover,
-                    errorBuilder: (_, _, _) => Container(
-                      color: AppTheme.bgLightSurface,
-                      child: Icon(Icons.image_not_supported,
-                          color: AppTheme.textLightMuted, size: 60),
-                    ),
-                  ),
-                  // تدرج شفاف في الأسفل
-                  Align(
-                    alignment: Alignment.bottomCenter,
-                    child: Container(
-                      height: 80,
+                    errorBuilder: (_, __, _) => Container(
                       decoration: const BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [Colors.transparent, Colors.white],
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                        ),
+                        gradient: AppTheme.primaryGradient,
+                      ),
+                      child: const Icon(
+                        Icons.image_not_supported,
+                        color: Colors.white54,
+                        size: 80,
                       ),
                     ),
                   ),
-                  // بادج الخصم
+                  // Gradient overlay
+                  Container(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          Colors.transparent,
+                          Colors.black.withValues(alpha: 0.1),
+                          Colors.black.withValues(alpha: 0.6),
+                        ],
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        stops: const [0.5, 0.7, 1.0],
+                      ),
+                    ),
+                  ),
+                  // Discount Badge
                   if (product.discountPercentage != null)
                     Positioned(
-                      top: 80,
+                      top: 60,
                       left: 16,
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                         decoration: BoxDecoration(
-                          color: AppTheme.neonRed,
-                          borderRadius: BorderRadius.circular(20),
+                          gradient: const LinearGradient(
+                            colors: [AppTheme.neonRed, Color(0xFFFF6B6B)],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                          borderRadius: BorderRadius.circular(24),
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppTheme.neonRed.withValues(alpha: 0.3),
+                              blurRadius: 12,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
                         ),
                         child: Text(
                           '-${product.discountPercentage}% OFF',
                           style: const TextStyle(
                             color: Colors.white,
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
+                            fontSize: 13,
+                            fontWeight: FontWeight.w800,
+                            
                           ),
                         ),
                       ),
@@ -110,141 +118,98 @@ class ProductDetailScreen extends StatelessWidget {
                 ],
               ),
             ),
+            bottom: PreferredSize(
+              preferredSize: const Size.fromHeight(1),
+              child: Container(height: 1, color: Colors.white.withValues(alpha: 0.1)),
+            ),
           ),
 
-          // ─── تفاصيل المنتج ──────────────────────────────────────
+          // ─── Product Details ──────────────────────────────────────────
           SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
+            child: Container(
+              margin: const EdgeInsets.only(top: 24),
+              padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // الفئة
-                  Text(
-                    _getCategoryLabel(product.categoryId),
-                    style: const TextStyle(
-                      color: AppTheme.blueAccent,
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
+                  // Category Badge
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                    decoration: BoxDecoration(
+                      gradient: AppTheme.primaryGradient,
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: const Text(
+                      'Free Shipping',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                        
+                      ),
                     ),
                   ),
-                  const SizedBox(height: 6),
+                  const SizedBox(height: 12),
 
-                  // اسم المنتج
+                  // Product Name
                   Text(
                     product.name,
                     style: const TextStyle(
                       color: AppTheme.textLightPrimary,
-                      fontSize: 22,
+                      fontSize: 24,
                       fontWeight: FontWeight.bold,
                       height: 1.3,
+                      
                     ),
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 12),
 
-                  // التقييم + الوقت المتبقي
+                  // Rating & Time Row
                   Row(
                     children: [
-                      const Icon(Icons.star_rounded, color: AppTheme.neonYellow, size: 18),
-                      const SizedBox(width: 4),
-                      Text(
-                        '${product.rating}',
-                        style: const TextStyle(
-                          color: AppTheme.textLightPrimary,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      if (product.timeLeft != null) ...[
-                        const Icon(Icons.access_time_rounded,
-                            color: AppTheme.orangeAccent, size: 16),
-                        const SizedBox(width: 4),
-                        Text(
-                          product.timeLeft!,
-                          style: const TextStyle(
-                            color: AppTheme.orangeAccent,
-                            fontSize: 13,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ],
+                      _buildRatingChip(),
+                      const SizedBox(width: 12),
+                      _buildTimeChip(),
+                      const Spacer(),
+                      _buildShareButton(),
                     ],
                   ),
                   const SizedBox(height: 16),
 
-                  // السعر الجديد + القديم + المدخرات
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Text(
-                        '\$${product.price.toStringAsFixed(2)}',
-                        style: const TextStyle(
-                          color: AppTheme.textLightPrimary,
-                          fontSize: 28,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      if (product.oldPrice != null) ...[
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: 4),
-                          child: Text(
-                            '\$${product.oldPrice!.toStringAsFixed(2)}',
-                            style: const TextStyle(
-                              color: AppTheme.textLightMuted,
-                              fontSize: 16,
-                              decoration: TextDecoration.lineThrough,
-                              decorationColor: AppTheme.textLightMuted,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: 4),
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                            decoration: BoxDecoration(
-                              color: AppTheme.neonRed.withValues(alpha: 0.1),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Text(
-                              'Save \$${(product.oldPrice! - product.price).toStringAsFixed(2)}',
-                              style: const TextStyle(
-                                color: AppTheme.neonRed,
-                                fontSize: 11,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ],
-                  ),
-
+                  // Price Section
+                  _buildPriceSection(),
                   const SizedBox(height: 20),
-                  const Divider(color: Color(0xFFEEEEEE)),
-                  const SizedBox(height: 16),
 
-                  // وصف المنتج
-                  const Text(
-                    'Description',
-                    style: TextStyle(
-                      color: AppTheme.textLightPrimary,
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    product.description.isNotEmpty
-                        ? product.description
-                        : 'Premium quality ${product.name}. Crafted with care and precision to give you the best experience. Perfect for everyday use.',
-                    style: const TextStyle(
-                      color: AppTheme.textLightMuted,
-                      fontSize: 14,
-                      height: 1.7,
-                    ),
+                  // Divider
+                  const Divider(color: AppTheme.bgLightSurface, thickness: 1),
+                  const SizedBox(height: 20),
+
+                  // Description Section
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'About this product',
+                        style: TextStyle(
+                          color: AppTheme.textLightPrimary,
+                          fontSize: 17,
+                          fontWeight: FontWeight.bold,
+                          
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      Text(
+                        product.description.isNotEmpty
+                            ? product.description
+                            : 'Premium quality product. Crafted with care and precision to give you the best experience. Perfect for everyday use and built to last.',
+                        style: const TextStyle(
+                          color: AppTheme.textLightSecondary,
+                          fontSize: 14,
+                          height: 1.7,
+                          
+                        ),
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 100),
                 ],
@@ -253,83 +218,250 @@ class ProductDetailScreen extends StatelessWidget {
           ),
         ],
       ),
+      bottomNavigationBar: _buildBottomBar(context),
+    );
+  }
 
-      // ─── زر Add to Cart ─────────────────────────────────────
-      bottomNavigationBar: Consumer<CartProvider>(
-        builder: (ctx, cart, _) => Container(
-          padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.08),
-                blurRadius: 16,
-                offset: const Offset(0, -4),
-              ),
-            ],
-          ),
-          child: GestureDetector(
-            onTap: () {
-              cart.addToCart(product);
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(
-                    '${product.name} added to cart ✓',
-                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
-                  ),
-                  backgroundColor: Colors.black87,
-                  duration: const Duration(seconds: 2),
-                  behavior: SnackBarBehavior.floating,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                ),
-              );
-            },
-            child: Container(
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              decoration: BoxDecoration(
-                color: AppTheme.orangeAccent,
-                borderRadius: BorderRadius.circular(14),
-                boxShadow: [
-                  BoxShadow(
-                    color: AppTheme.orangeAccent.withValues(alpha: 0.35),
-                    blurRadius: 12,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-              ),
-              child: const Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.shopping_cart_rounded, color: Colors.white, size: 20),
-                  SizedBox(width: 8),
-                  Text(
-                    'Add to Cart',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
+  Widget _buildCircleBackButton(BuildContext context) {
+    return GestureDetector(
+      onTap: () => Navigator.of(context).pop(),
+      child: Container(
+        margin: const EdgeInsets.all(8),
+        padding: const EdgeInsets.all(6),
+        decoration: BoxDecoration(
+          color: Colors.white.withValues(alpha: 0.2),
+          shape: BoxShape.circle,
+          border: Border.all(color: Colors.white.withValues(alpha: 0.3)),
         ),
+        child: const Icon(Icons.arrow_back_ios_new_rounded,
+            color: Colors.white, size: 18),
       ),
     );
   }
 
-  String _getCategoryLabel(String categoryId) {
-    const map = {
-      'electronics': 'Electronics',
-      'clothing': 'Fashion',
-      'books': 'Books',
-      'sports': 'Sports',
-      'furniture': 'Furniture',
-      'beauty': 'Perfumes & Beauty',
-      'racket': 'Racket',
-      'others': 'Others',
-    };
-    return map[categoryId] ?? categoryId;
+  Widget _buildCircleActionButton(BuildContext context,
+      {required IconData icon, required VoidCallback onTap}) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        margin: const EdgeInsets.all(8),
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: Colors.white.withValues(alpha: 0.2),
+          shape: BoxShape.circle,
+          border: Border.all(color: Colors.white.withValues(alpha: 0.3)),
+        ),
+        child: Icon(icon, color: Colors.white, size: 20),
+      ),
+    );
+  }
+
+  Widget _buildRatingChip() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      decoration: BoxDecoration(
+        gradient: AppTheme.yellowGradient,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Icon(Icons.star_rounded, color: Colors.white, size: 14),
+          const SizedBox(width: 4),
+          Text(
+            '${product.rating}',
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 12,
+              fontWeight: FontWeight.w700,
+              
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTimeChip() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      decoration: BoxDecoration(
+        color: AppTheme.accentOrange.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: AppTheme.accentOrange.withValues(alpha: 0.2)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Icon(Icons.access_time_rounded,
+              color: AppTheme.accentOrange, size: 14),
+          const SizedBox(width: 4),
+          Text(
+            product.timeLeft ?? 'Ending soon',
+            style: const TextStyle(
+              color: AppTheme.accentOrange,
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+              
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildShareButton() {
+    return GestureDetector(
+      onTap: () {},
+      child: Container(
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: AppTheme.bgLightSurface,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: const Icon(Icons.share_rounded,
+            color: AppTheme.textLightMuted, size: 18),
+      ),
+    );
+  }
+
+  Widget _buildPriceSection() {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        Text(
+          '\$${product.price.toStringAsFixed(2)}',
+          style: const TextStyle(
+            color: AppTheme.textLightPrimary,
+            fontSize: 30,
+            fontWeight: FontWeight.bold,
+            
+          ),
+        ),
+        const SizedBox(width: 10),
+        if (product.oldPrice != null) ...[
+          Text(
+            '\$${product.oldPrice!.toStringAsFixed(2)}',
+            style: TextStyle(
+              color: AppTheme.textLightMuted,
+              fontSize: 16,
+              decoration: TextDecoration.lineThrough,
+              decorationColor: AppTheme.textLightMuted,
+              
+            ),
+          ),
+          const SizedBox(width: 8),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+            decoration: BoxDecoration(
+              color: AppTheme.neonRed.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Text(
+              'Save \$${(product.oldPrice! - product.price).toStringAsFixed(2)}',
+              style: const TextStyle(
+                color: AppTheme.neonRed,
+                fontSize: 11,
+                fontWeight: FontWeight.bold,
+                
+              ),
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+
+  Widget _buildBottomBar(BuildContext context) {
+    return Consumer<FavoriteProvider>(
+      builder: (ctx, favProvider, _) {
+        final isFav = favProvider.isFavorite(product);
+        return Container(
+          padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black12,
+                blurRadius: 16,
+                offset: Offset(0, -4),
+              ),
+            ],
+          ),
+          child: Row(
+            children: [
+              // Favorite Button
+              Container(
+                width: 52,
+                height: 52,
+                decoration: BoxDecoration(
+                  gradient: isFav ? AppTheme.pinkGradient : null,
+                  color: isFav ? null : AppTheme.bgLightSurface,
+                  borderRadius: BorderRadius.circular(16),
+                  border: isFav
+                      ? null
+                      : Border.all(color: Colors.grey.withValues(alpha: 0.2)),
+                ),
+                child: IconButton(
+                  icon: Icon(
+                    isFav ? Icons.favorite_rounded : Icons.favorite_border_rounded,
+                    color: isFav ? Colors.white : AppTheme.textLightMuted,
+                    size: 22,
+                  ),
+                  onPressed: () => favProvider.toggleFavorite(product),
+                ),
+              ),
+              const SizedBox(width: 12),
+              // Add to Cart Button
+              Expanded(
+                child: SizedBox(
+                  height: 52,
+                  child: ElevatedButton.icon(
+                    onPressed: () {
+                      final cart =
+                          Provider.of<CartProvider>(context, listen: false);
+                      cart.addToCart(product);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            '${product.name} added to cart ✓',
+                            style:
+                                const TextStyle(fontWeight: FontWeight.w600),
+                          ),
+                          backgroundColor: AppTheme.primaryPurple,
+                          duration: const Duration(seconds: 2),
+                          behavior: SnackBarBehavior.floating,
+                          shape:
+                              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        ),
+                      );
+                    },
+                    icon: const Icon(Icons.shopping_cart_rounded, size: 20),
+                    label: const Text(
+                      'Add to Cart',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w700,
+                        fontSize: 16,
+                        
+                      ),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppTheme.primaryPurple,
+                      foregroundColor: Colors.white,
+                      elevation: 4,
+                      shadowColor:
+                          AppTheme.primaryPurple.withValues(alpha: 0.3),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 }

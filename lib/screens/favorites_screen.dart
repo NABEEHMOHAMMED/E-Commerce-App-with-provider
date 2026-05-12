@@ -1,3 +1,4 @@
+import 'package:e_commerce_app_with_provider/providers/navigation_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/favorite_provider.dart';
@@ -10,101 +11,206 @@ class FavoritesScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: Colors.white, // Light background matching image
-      child: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // ─── Header ──────────────────────────────────────────
-            Padding(
-              padding: const EdgeInsets.fromLTRB(24, 20, 24, 16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Favorites',
-                    style: TextStyle(
-                      color: AppTheme.textLightPrimary,
-                      fontSize: 26,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 6),
-                  Text(
-                    'Saved items with a polished wishlist\npresentation.',
-                    style: TextStyle(
-                      color: AppTheme.textLightMuted,
-                      fontSize: 13,
-                      height: 1.4,
-                    ),
-                  ),
-                ],
-              ),
+    return Scaffold(
+      backgroundColor: AppTheme.bgLight,
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        leading: GestureDetector(
+          onTap: () {
+            if (Navigator.of(context).canPop()) {
+              Navigator.of(context).pop();
+            } else {
+              Provider.of<NavigationProvider>(context, listen: false).goHome();
+            }
+          },
+          child: Container(
+            margin: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: AppTheme.bgLightSurface,
+              shape: BoxShape.circle,
             ),
-
-            // ─── Grid ────────────────────────────────────────────
-            Expanded(
-              child: Consumer<FavoriteProvider>(
-                builder: (ctx, favoriteProvider, _) {
-                  if (favoriteProvider.favorites.isEmpty) {
-                    return Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(24),
-                            decoration: const BoxDecoration(
-                              color: AppTheme.bgLightSurface,
-                              shape: BoxShape.circle,
-                            ),
-                            child: const Icon(Icons.favorite_border_rounded,
-                                size: 48, color: AppTheme.textLightMuted),
-                          ),
-                          const SizedBox(height: 20),
-                          const Text(
-                            'No favorites yet',
-                            style: TextStyle(
-                              color: AppTheme.textLightPrimary,
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
-                      ),
-                    );
-                  }
-
-                  return GridView.builder(
-                    physics: const BouncingScrollPhysics(),
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      childAspectRatio: 0.75,
-                      crossAxisSpacing: 16,
-                      mainAxisSpacing: 16,
-                    ),
-                    itemCount: favoriteProvider.favorites.length,
-                    itemBuilder: (ctx, index) {
-                      final product = favoriteProvider.favorites[index];
-                      return GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => ProductDetailScreen(product: product),
-                            ),
-                          );
-                        },
-                        child: ProductCard(product: product),
-                      );
-                    },
-                  );
-                },
-              ),
+            child: const Icon(
+              Icons.arrow_back_ios_new_rounded,
+              color: AppTheme.textLightPrimary,
+              size: 18,
             ),
-          ],
+          ),
         ),
+        title: const Text(
+          'My Favorites',
+          style: TextStyle(
+            color: AppTheme.textLightPrimary,
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        centerTitle: true,
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 8),
+            child: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: AppTheme.neonPink.withValues(alpha: 0.08),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.favorite_rounded,
+                color: AppTheme.neonPink,
+                size: 20,
+              ),
+            ),
+          ),
+        ],
+      ),
+      body: Consumer<FavoriteProvider>(
+        builder: (ctx, favoriteProvider, _) {
+          if (favoriteProvider.favorites.isEmpty) {
+            return _buildEmptyFavorites();
+          }
+          return Column(
+            children: [
+              // ─── Header Stats ──────────────────────────
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.fromLTRB(20, 20, 20, 16),
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.vertical(
+                    bottom: Radius.circular(24),
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        gradient: AppTheme.pinkGradient,
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: const Icon(
+                        Icons.favorite_rounded,
+                        color: Colors.white,
+                        size: 24,
+                      ),
+                    ),
+                    const SizedBox(width: 14),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          '${favoriteProvider.favorites.length} items',
+                          style: const TextStyle(
+                            color: AppTheme.textLightMuted,
+                            fontSize: 13,
+                          ),
+                        ),
+                        const Text(
+                          'Saved for you',
+                          style: TextStyle(
+                            color: AppTheme.textLightPrimary,
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const Spacer(),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 6,
+                      ),
+                      decoration: BoxDecoration(
+                        color: AppTheme.neonPink.withValues(alpha: 0.08),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: const Text(
+                        'Wishlist',
+                        style: TextStyle(
+                          color: AppTheme.neonPink,
+                          fontSize: 10,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              // ─── Grid ──────────────────────────────────
+              Expanded(
+                child: GridView.builder(
+                  physics: const BouncingScrollPhysics(),
+                  padding: const EdgeInsets.all(16),
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    childAspectRatio: 0.72,
+                    crossAxisSpacing: 12,
+                    mainAxisSpacing: 12,
+                  ),
+                  itemCount: favoriteProvider.favorites.length,
+                  itemBuilder: (ctx, index) {
+                    final product = favoriteProvider.favorites[index];
+                    return GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) =>
+                                ProductDetailScreen(product: product),
+                          ),
+                        );
+                      },
+                      child: ProductCard(product: product),
+                    );
+                  },
+                ),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildEmptyFavorites() {
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 120,
+            height: 120,
+            decoration: BoxDecoration(
+              gradient: AppTheme.pinkGradient,
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(
+              Icons.favorite_border_rounded,
+              size: 50,
+              color: Colors.white,
+            ),
+          ),
+          const SizedBox(height: 16),
+          const Text(
+            'No favorites yet',
+            style: TextStyle(
+              color: AppTheme.textLightPrimary,
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 8),
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 40),
+            child: Text(
+              'Tap the heart icon on any product to save it here.',
+              textAlign: TextAlign.center,
+              style: TextStyle(color: AppTheme.textLightMuted, fontSize: 13),
+            ),
+          ),
+        ],
       ),
     );
   }

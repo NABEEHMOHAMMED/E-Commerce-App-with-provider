@@ -12,67 +12,84 @@ class ProductCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 160,
+      width: 170,
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.08),
-            blurRadius: 12,
+            color: Colors.black.withValues(alpha: 0.06),
+            blurRadius: 16,
             spreadRadius: 1,
-            offset: const Offset(0, 4),
+            offset: const Offset(0, 6),
           ),
         ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // ─── صورة المنتج ───────────────────────────────────
+          // ─── Product Image ────────────────────────────────
           Stack(
             children: [
               ClipRRect(
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
                 child: Image.network(
                   product.imageUrl,
-                  height: 100,
+                  height: 150,
                   width: double.infinity,
                   fit: BoxFit.cover,
-                  errorBuilder: (_, _, _) => Container(
-                    height: 100,
-                    color: AppTheme.bgLightSurface,
-                    child: Icon(Icons.image_not_supported,
-                        color: AppTheme.textLightMuted, size: 40),
+                  errorBuilder: (_, __, _) => Container(
+                    height: 150,
+                    decoration: const BoxDecoration(
+                      gradient: AppTheme.primaryGradient,
+                    ),
+                    child: const Icon(
+                      Icons.image_not_supported,
+                      color: Colors.white54,
+                      size: 40,
+                    ),
                   ),
                 ),
               ),
 
-              // بادج الخصم (أعلى اليسار)
+              // Discount badge
               if (product.discountPercentage != null)
                 Positioned(
-                  top: 8,
-                  left: 8,
+                  top: 10,
+                  left: 10,
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
-                      color: AppTheme.neonRed,
+                      gradient: const LinearGradient(
+                        colors: [AppTheme.neonRed, Color(0xFFFF6B6B)],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
                       borderRadius: BorderRadius.circular(20),
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppTheme.neonRed.withValues(alpha: 0.3),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
                     ),
                     child: Text(
                       '-${product.discountPercentage}%',
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 10,
-                        fontWeight: FontWeight.bold,
+                        fontWeight: FontWeight.w800,
+                        
                       ),
                     ),
                   ),
                 ),
 
-              // زر المفضلة (أعلى اليمين)
+              // Favorite button
               Positioned(
-                top: 8,
-                right: 8,
+                top: 10,
+                right: 10,
                 child: Consumer<FavoriteProvider>(
                   builder: (ctx, favoriteProvider, _) {
                     final isFav = favoriteProvider.isFavorite(product);
@@ -80,13 +97,22 @@ class ProductCard extends StatelessWidget {
                       onTap: () => favoriteProvider.toggleFavorite(product),
                       child: Container(
                         padding: const EdgeInsets.all(6),
-                        decoration: const BoxDecoration(
-                          color: Colors.white,
+                        decoration: BoxDecoration(
+                          color: isFav
+                              ? AppTheme.neonRed
+                              : Colors.white.withValues(alpha: 0.8),
                           shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.1),
+                              blurRadius: 6,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
                         ),
                         child: Icon(
                           isFav ? Icons.favorite_rounded : Icons.favorite_border_rounded,
-                          color: isFav ? AppTheme.neonPink : AppTheme.navInactive,
+                          color: isFav ? Colors.white : AppTheme.textLightMuted,
                           size: 16,
                         ),
                       ),
@@ -97,94 +123,177 @@ class ProductCard extends StatelessWidget {
             ],
           ),
 
-          // ─── تفاصيل المنتج ──────────────────────────────────
+          // ─── Product Details ──────────────────────────────
           Expanded(
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(10, 6, 10, 6),
+              padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  // اسم الفئة (بالأزرق)
+                  // Category label
                   Text(
                     _getCategoryLabel(product.categoryId),
-                    style: const TextStyle(
-                      color: AppTheme.blueAccent,
+                    style: TextStyle(
+                      color: _getCategoryColor(product.categoryId),
                       fontSize: 10,
-                      fontWeight: FontWeight.w600,
+                      fontWeight: FontWeight.w700,
+                      
                     ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
+                  const SizedBox(height: 6),
 
-                  // اسم المنتج
+                  // Product name
                   Text(
                     product.name,
-                    maxLines: 1,
+                    maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
                       color: AppTheme.textLightPrimary,
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                      height: 1.2,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      height: 1.3,
+                      
                     ),
                   ),
+                  const Spacer(),
 
-                  // الوقت المتبقي (بالبرتقالي)
+                  // Time left
                   if (product.timeLeft != null)
                     Row(
                       children: [
-                        const Icon(Icons.access_time_rounded,
-                            color: AppTheme.orangeAccent, size: 10),
-                        const SizedBox(width: 3),
-                        Text(
-                          product.timeLeft!,
-                          style: const TextStyle(
-                            color: AppTheme.orangeAccent,
-                            fontSize: 9,
-                            fontWeight: FontWeight.w500,
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: AppTheme.accentOrange.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(Icons.access_time_rounded,
+                                  color: AppTheme.accentOrange, size: 10),
+                              const SizedBox(width: 2),
+                              Text(
+                                product.timeLeft!,
+                                style: const TextStyle(
+                                  color: AppTheme.accentOrange,
+                                  fontSize: 8,
+                                  fontWeight: FontWeight.w600,
+                                  
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ],
                     ),
+                  const SizedBox(height: 6),
 
-                // السعر الجديد + السعر القديم المشطوب
-                Row(
-                  children: [
-                    Text(
-                      '\$${product.price.toStringAsFixed(2)}',
-                      style: const TextStyle(
-                        color: AppTheme.textLightPrimary,
-                        fontSize: 13,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(width: 5),
-                    if (product.oldPrice != null)
+                  // Price row
+                  Row(
+                    children: [
                       Text(
-                        '\$${product.oldPrice!.toStringAsFixed(2)}',
+                        '\$${product.price.toStringAsFixed(2)}',
                         style: const TextStyle(
-                          color: AppTheme.textLightMuted,
-                          fontSize: 10,
-                          decoration: TextDecoration.lineThrough,
-                          decorationColor: AppTheme.textLightMuted,
+                          color: AppTheme.textLightPrimary,
+                          fontSize: 15,
+                          fontWeight: FontWeight.bold,
+                          
                         ),
                       ),
-                  ],
-                ),
-              ],
+                      const SizedBox(width: 6),
+                      if (product.oldPrice != null)
+                        Flexible(
+                          child: Text(
+                            '\$${product.oldPrice!.toStringAsFixed(2)}',
+                            style: const TextStyle(
+                              color: AppTheme.textLightMuted,
+                              fontSize: 10,
+                              decoration: TextDecoration.lineThrough,
+                              decorationColor: AppTheme.textLightMuted,
+                              
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      const Spacer(),
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                            const Icon(Icons.star_rounded,
+                                color: AppTheme.neonYellow, size: 12),
+                            const SizedBox(width: 2),
+                            Text(
+                              '${product.rating}',
+                              style: const TextStyle(
+                                color: AppTheme.textLightPrimary,
+                                fontSize: 11,
+                                fontWeight: FontWeight.w600,
+                                
+                              ),
+                            ),
+                          ],
+                        ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
-        ),
         ],
       ),
     );
   }
 
+  Color _getCategoryColor(String categoryId) {
+    const map = {
+      'electronics': AppTheme.primaryBlue,
+      "men's clothing": AppTheme.accentTeal,
+      "women's clothing": AppTheme.neonPink,
+      'jewelery': AppTheme.neonYellow,
+      'sports': Color(0xFF4A7CFF),
+      'furniture': Color(0xFFFF9F43),
+      'beauty': Color(0xFFE84393),
+      'accessories': Color(0xFF00CEC9),
+      'toys': Color(0xFFFDCB6E),
+      'books': Color(0xFFA29BFE),
+      'food': Color(0xFF55EFC4),
+      'health': Color(0xFF74B9FF),
+      'music': Color(0xFFE17055),
+      'tools': Color(0xFF636E72),
+      'computers': Color(0xFF0984E3),
+      'automotive': Color(0xFFC0392B),
+      'home': Color(0xFF2ECC71),
+      'industrial': Color(0xFFB2BEC3),
+      'others': AppTheme.primaryPurple,
+    };
+    return map[categoryId] ?? AppTheme.primaryPurple;
+  }
+
   String _getCategoryLabel(String categoryId) {
     const map = {
       'electronics': 'Electronics',
-      "men's clothing": 'Men Fashion',
-      "women's clothing": 'Women Fashion',
+      "men's clothing": "Men's Fashion",
+      "women's clothing": "Women's Fashion",
       'jewelery': 'Jewelery',
+      'sports': 'Sports',
+      'furniture': 'Furniture',
+      'beauty': 'Beauty',
+      'accessories': 'Accessories',
+      'toys': 'Toys',
+      'books': 'Books',
+      'food': 'Food & Drink',
+      'health': 'Health',
+      'music': 'Music',
+      'tools': 'Tools',
+      'computers': 'Computers',
+      'automotive': 'Automotive',
+      'home': 'Home & Garden',
+      'industrial': 'Industrial',
+      'others': 'Others',
     };
     return map[categoryId] ?? categoryId;
   }

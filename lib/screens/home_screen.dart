@@ -14,6 +14,7 @@ import 'categories_screen.dart';
 import 'profile_screen.dart';
 import 'product_detail_screen.dart';
 import 'all_products_screen.dart';
+import 'category_products_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -31,7 +32,7 @@ class HomeScreen extends StatelessWidget {
     return Consumer<NavigationProvider>(
       builder: (context, navProvider, child) {
         final selectedIndex = navProvider.selectedIndex;
-        
+
         return Scaffold(
           backgroundColor: AppTheme.bgLight,
           body: _screens[selectedIndex],
@@ -40,23 +41,28 @@ class HomeScreen extends StatelessWidget {
               color: Colors.white,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.08),
-                  blurRadius: 16,
-                  offset: const Offset(0, -4),
+                  color: Colors.black.withValues(alpha: 0.06),
+                  blurRadius: 20,
+                  offset: const Offset(0, -6),
                 ),
               ],
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
             ),
             child: SafeArea(
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
-                    _buildNavItem(context, navProvider, 0, Icons.home_rounded, Icons.home_outlined, 'Home'),
-                    _buildNavItem(context, navProvider, 1, Icons.grid_view_rounded, Icons.grid_view_outlined, 'Categories'),
-                    _buildNavItem(context, navProvider, 2, Icons.favorite_rounded, Icons.favorite_border_rounded, 'Favorites'),
+                    _buildNavItem(context, navProvider, 0,
+                        Icons.home_filled, Icons.home_outlined, 'Home'),
+                    _buildNavItem(context, navProvider, 1,
+                        Icons.grid_view_rounded, Icons.grid_view_outlined, 'Categories'),
+                    _buildNavItem(context, navProvider, 2,
+                        Icons.favorite_rounded, Icons.favorite_border_rounded, 'Favorites'),
                     _buildCartNavItem(context, navProvider),
-                    _buildNavItem(context, navProvider, 4, Icons.person_rounded, Icons.person_outline_rounded, 'Profile'),
+                    _buildNavItem(context, navProvider, 4,
+                        Icons.person_rounded, Icons.person_outline_rounded, 'Profile'),
                   ],
                 ),
               ),
@@ -67,32 +73,43 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildNavItem(BuildContext context, NavigationProvider nav, int index, IconData activeIcon, IconData inactiveIcon, String label) {
+  Widget _buildNavItem(BuildContext context, NavigationProvider nav, int index,
+      IconData activeIcon, IconData inactiveIcon, String label) {
     final isSelected = nav.selectedIndex == index;
     return GestureDetector(
       onTap: () => nav.setSelectedIndex(index),
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
         decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFFFFEBE6) : Colors.transparent,
-          borderRadius: BorderRadius.circular(20),
+          color: isSelected
+              ? AppTheme.primaryPurple.withValues(alpha: 0.08)
+              : Colors.transparent,
+          borderRadius: BorderRadius.circular(16),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              isSelected ? activeIcon : inactiveIcon,
-              color: isSelected ? Colors.black87 : AppTheme.navInactive,
-              size: 24,
+            AnimatedSwitcher(
+              duration: const Duration(milliseconds: 200),
+              transitionBuilder: (Widget child, Animation<double> animation) {
+                return ScaleTransition(scale: animation, child: child);
+              },
+              child: Icon(
+                isSelected ? activeIcon : inactiveIcon,
+                key: ValueKey(isSelected),
+                color: isSelected ? AppTheme.primaryPurple : AppTheme.navInactive,
+                size: 24,
+              ),
             ),
-            const SizedBox(height: 3),
+            const SizedBox(height: 4),
             Text(
               label,
               style: TextStyle(
-                color: isSelected ? Colors.black87 : AppTheme.navInactive,
+                color: isSelected ? AppTheme.primaryPurple : AppTheme.navInactive,
                 fontSize: 10,
-                fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w400,
               ),
             ),
           ],
@@ -109,40 +126,43 @@ class HomeScreen extends StatelessWidget {
         clipBehavior: Clip.none,
         children: [
           AnimatedContainer(
-            duration: const Duration(milliseconds: 200),
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeInOut,
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
             decoration: BoxDecoration(
-              color: isSelected ? const Color(0xFFFFEBE6) : Colors.transparent,
-              borderRadius: BorderRadius.circular(20),
+              color: isSelected
+                  ? AppTheme.primaryPurple.withValues(alpha: 0.08)
+                  : Colors.transparent,
+              borderRadius: BorderRadius.circular(16),
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 Icon(
                   isSelected ? Icons.shopping_cart_rounded : Icons.shopping_cart_outlined,
-                  color: isSelected ? Colors.black87 : AppTheme.navInactive,
+                  color: isSelected ? AppTheme.primaryPurple : AppTheme.navInactive,
                   size: 24,
                 ),
-                const SizedBox(height: 3),
+                const SizedBox(height: 4),
                 const Text(
                   'Cart',
                   style: TextStyle(
-                    color: Colors.black87,
+                    color: AppTheme.primaryPurple,
                     fontSize: 10,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
               ],
             ),
           ),
           Consumer<CartProvider>(
-            builder: (ctx, cart, _) {
+            builder: (ctx, cart, __) {
               if (cart.itemCount == 0) return const SizedBox.shrink();
               return Positioned(
-                right: 4,
-                top: 2,
+                right: 2,
+                top: 0,
                 child: Container(
-                  padding: const EdgeInsets.all(4),
+                  padding: const EdgeInsets.all(5),
                   decoration: const BoxDecoration(
                     color: AppTheme.neonRed,
                     shape: BoxShape.circle,
@@ -175,45 +195,112 @@ class MainHomeScreen extends StatelessWidget {
     return SafeArea(
       child: Consumer<ProductProvider>(
         builder: (ctx, productProvider, _) {
-          // Build status banner if needed
           final showStatusBanner = productProvider.errorMessage != null &&
               productProvider.allProducts.isNotEmpty;
 
           return CustomScrollView(
             physics: const BouncingScrollPhysics(),
             slivers: [
-              // ─── Status Banner ───────────────────────────────────────
+              // ─── App Bar ─────────────────────────────────────
+              SliverAppBar(
+                expandedHeight: 200,
+                pinned: true,
+                backgroundColor: AppTheme.primaryPurple,
+                flexibleSpace: FlexibleSpaceBar(
+                  title: const Text(
+                    'ShopWave',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w800,
+                      fontSize: 22,
+                      color: Colors.white,
+                      letterSpacing: 1.2,
+                    ),
+                  ),
+                  centerTitle: true,
+                  background: Container(
+                    decoration: const BoxDecoration(
+                      gradient: AppTheme.heroGradient,
+                    ),
+                    child: Stack(
+                      children: [
+                        Positioned(
+                          top: -40,
+                          right: -60,
+                          child: Container(
+                            width: 200,
+                            height: 200,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: Colors.white.withValues(alpha: 0.08),
+                            ),
+                          ),
+                        ),
+                        Positioned(
+                          bottom: -60,
+                          left: -40,
+                          child: Container(
+                            width: 160,
+                            height: 160,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: Colors.white.withValues(alpha: 0.05),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                bottom: PreferredSize(
+                  preferredSize: const Size.fromHeight(1),
+                  child: Container(
+                      height: 1,
+                      color: Colors.white.withValues(alpha: 0.2)),
+                ),
+              ),
+
+              // ─── Status Banner ───────────────────────────────
               if (showStatusBanner)
                 SliverToBoxAdapter(
                   child: Container(
                     width: double.infinity,
                     margin: const EdgeInsets.fromLTRB(16, 12, 16, 0),
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
-                        colors: [AppTheme.orangeAccent.withValues(alpha: 0.9), AppTheme.neonRed.withValues(alpha: 0.9)],
+                        colors: [
+                          AppTheme.accentOrange.withValues(alpha: 0.9),
+                          AppTheme.neonRed.withValues(alpha: 0.85),
+                        ],
                         begin: Alignment.centerLeft,
                         end: Alignment.centerRight,
                       ),
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(16),
                       boxShadow: [
                         BoxShadow(
-                          color: AppTheme.orangeAccent.withValues(alpha: 0.3),
-                          blurRadius: 8,
-                          offset: const Offset(0, 4),
+                          color: AppTheme.accentOrange.withValues(alpha: 0.25),
+                          blurRadius: 12,
+                          offset: const Offset(0, 6),
                         ),
                       ],
                     ),
                     child: Row(
                       children: [
-                        Icon(
-                          productProvider.isConnected
-                              ? Icons.warning_rounded
-                              : Icons.wifi_off_rounded,
-                          color: Colors.white,
-                          size: 20,
+                        Container(
+                          padding: const EdgeInsets.all(6),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.2),
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(
+                            productProvider.isConnected
+                                ? Icons.warning_rounded
+                                : Icons.wifi_off_rounded,
+                            color: Colors.white,
+                            size: 18,
+                          ),
                         ),
-                        const SizedBox(width: 8),
+                        const SizedBox(width: 10),
                         Expanded(
                           child: Text(
                             productProvider.errorMessage ?? '',
@@ -229,39 +316,168 @@ class MainHomeScreen extends StatelessWidget {
                   ),
                 ),
 
-              // ─── Loading State ───────────────────────────────────────
+              // ─── Loading State ───────────────────────────────
               if (productProvider.isLoading && productProvider.allProducts.isEmpty)
-                SliverToBoxAdapter(
-                  child: SizedBox(
-                    height: 400,
-                    child: const Center(
-                      child: CircularProgressIndicator(
-                        color: AppTheme.orangeAccent,
-                      ),
+                SliverFillRemaining(
+                  child: Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Container(
+                          width: 60,
+                          height: 60,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: AppTheme.primaryPurple.withValues(alpha: 0.2),
+                              width: 3,
+                            ),
+                          ),
+                          child: const CircularProgressIndicator(
+                            color: AppTheme.primaryPurple,
+                            strokeWidth: 3,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        const Text(
+                          'Loading products...',
+                          style: TextStyle(
+                            color: AppTheme.textLightMuted,
+                            fontSize: 14,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
 
-              // ─── Empty State ─────────────────────────────────────────
+              // ─── Empty State ─────────────────────────────────
               if (!productProvider.isLoading && productProvider.allProducts.isEmpty)
-                SliverToBoxAdapter(
-                  child: SizedBox(
-                    height: 400,
-                    child: Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Icon(Icons.error_outline, size: 60, color: Colors.red),
-                          const SizedBox(height: 16),
-                          Text(
-                            productProvider.errorMessage ?? 'No products found.',
-                            textAlign: TextAlign.center,
-                            style: const TextStyle(color: Colors.red),
+                SliverFillRemaining(
+                  child: Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(20),
+                          decoration: BoxDecoration(
+                            gradient: AppTheme.primaryGradient,
+                            shape: BoxShape.circle,
                           ),
-                          const SizedBox(height: 16),
-                          ElevatedButton(
-                            onPressed: () => productProvider.fetchProducts(),
-                            child: const Text('Retry'),
+                          child: const Icon(
+                            Icons.shopping_bag_outlined,
+                            size: 50,
+                            color: Colors.white,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          productProvider.errorMessage ?? 'No products found',
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            color: AppTheme.textLightPrimary,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 40),
+                          child: Text(
+                            'Something went wrong. Please try again.',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: AppTheme.textLightMuted,
+                              fontSize: 13,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+                        ElevatedButton.icon(
+                          onPressed: () => productProvider.fetchProducts(),
+                          icon: const Icon(Icons.refresh_rounded, size: 20),
+                          label: const Text('Try Again'),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
+              // ─── Products Found ──────────────────────────────
+              if (productProvider.allProducts.isNotEmpty) ...[
+
+                // ─── Banner Section ────────────────────────────
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 24, 20, 0),
+                    child: Container(
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        gradient: AppTheme.heroGradient,
+                        borderRadius: BorderRadius.circular(24),
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppTheme.primaryPurple.withValues(alpha: 0.2),
+                            blurRadius: 20,
+                            offset: const Offset(0, 8),
+                          ),
+                        ],
+                      ),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text(
+                                  'Grand Sale!',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.w800,
+                                  ),
+                                ),
+                                const SizedBox(height: 6),
+                                const Text(
+                                  'Up to 70% off on selected items.\nShop now before it\'s too late!',
+                                  style: TextStyle(
+                                    color: Colors.white70,
+                                    fontSize: 12,
+                                    height: 1.5,
+                                  ),
+                                ),
+                                const SizedBox(height: 12),
+                                Container(
+                                  height: 32,
+                                  width: 100,
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                  child: const Center(
+                                    child: Text(
+                                      'Shop Now',
+                                      style: TextStyle(
+                                        color: AppTheme.primaryPurple,
+                                        fontWeight: FontWeight.w700,
+                                        fontSize: 12,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(20),
+                            child: Image.network(
+                              'https://fakestoreapi.com/img/81fPKd-2AYL._AC_SL1500_.jpg',
+                              width: 120,
+                              height: 120,
+                              fit: BoxFit.cover,
+                              errorBuilder: (_, __, _) => const SizedBox.shrink(),
+                            ),
                           ),
                         ],
                       ),
@@ -269,28 +485,54 @@ class MainHomeScreen extends StatelessWidget {
                   ),
                 ),
 
-              // ─── Products Found ──────────────────────────────────────
-              if (productProvider.allProducts.isNotEmpty) ...[
-                // ─── Header ──────────────────────────────────────
+                // ─── Flash Deals Header ────────────────────────
                 SliverToBoxAdapter(
                   child: Padding(
-                    padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
+                    padding: const EdgeInsets.fromLTRB(20, 24, 20, 0),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text(
-                              'Today Deals',
-                              style: TextStyle(
-                                color: AppTheme.textLightPrimary,
-                                fontSize: 22,
-                                fontWeight: FontWeight.bold,
-                              ),
+                            Row(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                  decoration: BoxDecoration(
+                                    color: AppTheme.neonRed.withValues(alpha: 0.15),
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: const Row(
+                                    children: [
+                                      Icon(Icons.local_fire_department_rounded,
+                                          color: AppTheme.neonRed, size: 14),
+                                      SizedBox(width: 4),
+                                      Text(
+                                        'Flash',
+                                        style: TextStyle(
+                                          color: AppTheme.neonRed,
+                                          fontWeight: FontWeight.w700,
+                                          fontSize: 11,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                const Text(
+                                  'Deals',
+                                  style: TextStyle(
+                                    color: AppTheme.textLightPrimary,
+                                    fontSize: 22,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
                             ),
-                            const Text(
-                              'Items opened for today only',
+                            const SizedBox(height: 4),
+                            Text(
+                              'Exclusive offers just for you',
                               style: TextStyle(
                                 color: AppTheme.textLightMuted,
                                 fontSize: 12,
@@ -304,18 +546,25 @@ class MainHomeScreen extends StatelessWidget {
                               context,
                               MaterialPageRoute(
                                 builder: (_) => AllProductsScreen(
-                                  title: 'Today Deals',
+                                  title: 'Flash Deals',
                                   products: productProvider.allProducts,
                                 ),
                               ),
                             );
                           },
-                          child: const Text(
-                            'See all',
-                            style: TextStyle(
-                              color: AppTheme.orangeAccent,
-                              fontSize: 13,
-                              fontWeight: FontWeight.w600,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                            decoration: BoxDecoration(
+                              color: AppTheme.primaryPurple.withValues(alpha: 0.08),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: const Text(
+                              'See all →',
+                              style: TextStyle(
+                                color: AppTheme.primaryPurple,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                              ),
                             ),
                           ),
                         ),
@@ -324,25 +573,26 @@ class MainHomeScreen extends StatelessWidget {
                   ),
                 ),
 
-                // ─── Today Deals (Horizontal scroll) ─────────────
+                // ─── Flash Deals (Horizontal scroll) ───────────
                 SliverToBoxAdapter(
                   child: SizedBox(
-                    height: 260,
+                    height: 280,
                     child: ListView.builder(
                       physics: const BouncingScrollPhysics(),
                       scrollDirection: Axis.horizontal,
-                      padding: const EdgeInsets.fromLTRB(20, 12, 20, 12),
-                      itemCount: productProvider.allProducts.take(5).length,
+                      padding: const EdgeInsets.fromLTRB(20, 14, 10, 14),
+                      itemCount: productProvider.allProducts.take(6).length,
                       itemBuilder: (ctx, i) {
                         final product = productProvider.allProducts[i];
                         return Padding(
-                          padding: EdgeInsets.only(right: i < 4 ? 12 : 0),
+                          padding: EdgeInsets.only(right: i < 5 ? 14 : 10),
                           child: GestureDetector(
                             onTap: () {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (_) => ProductDetailScreen(product: product),
+                                  builder: (_) =>
+                                      ProductDetailScreen(product: product),
                                 ),
                               );
                             },
@@ -354,7 +604,7 @@ class MainHomeScreen extends StatelessWidget {
                   ),
                 ),
 
-                // ─── Trending Header ─────────────────────────────
+                // ─── Trending Header ───────────────────────────
                 SliverToBoxAdapter(
                   child: Padding(
                     padding: const EdgeInsets.fromLTRB(20, 8, 20, 0),
@@ -364,16 +614,44 @@ class MainHomeScreen extends StatelessWidget {
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text(
-                              'Trending',
-                              style: TextStyle(
-                                color: AppTheme.textLightPrimary,
-                                fontSize: 22,
-                                fontWeight: FontWeight.bold,
-                              ),
+                            Row(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                  decoration: BoxDecoration(
+                                    color: AppTheme.neonYellow.withValues(alpha: 0.15),
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: const Row(
+                                    children: [
+                                      Icon(Icons.trending_up_rounded,
+                                          color: AppTheme.neonYellow, size: 14),
+                                      SizedBox(width: 4),
+                                      Text(
+                                        'Trending',
+                                        style: TextStyle(
+                                          color: AppTheme.neonYellow,
+                                          fontWeight: FontWeight.w700,
+                                          fontSize: 11,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                const Text(
+                                  'Trending',
+                                  style: TextStyle(
+                                    color: AppTheme.textLightPrimary,
+                                    fontSize: 22,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
                             ),
-                            const Text(
-                              'Most loved styles and gadgets right now',
+                            const SizedBox(height: 4),
+                            Text(
+                              'Most popular picks right now',
                               style: TextStyle(
                                 color: AppTheme.textLightMuted,
                                 fontSize: 12,
@@ -388,17 +666,25 @@ class MainHomeScreen extends StatelessWidget {
                               MaterialPageRoute(
                                 builder: (_) => AllProductsScreen(
                                   title: 'Trending',
-                                  products: productProvider.allProducts.reversed.toList(),
+                                  products:
+                                      productProvider.allProducts.reversed.toList(),
                                 ),
                               ),
                             );
                           },
-                          child: const Text(
-                            'See all',
-                            style: TextStyle(
-                              color: AppTheme.orangeAccent,
-                              fontSize: 13,
-                              fontWeight: FontWeight.w600,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                            decoration: BoxDecoration(
+                              color: AppTheme.accentTeal.withValues(alpha: 0.08),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: const Text(
+                              'See all →',
+                              style: TextStyle(
+                                color: AppTheme.accentTeal,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                              ),
                             ),
                           ),
                         ),
@@ -407,25 +693,26 @@ class MainHomeScreen extends StatelessWidget {
                   ),
                 ),
 
-                // ─── Trending (Horizontal scroll) ─────────────────
+                // ─── Trending (Horizontal scroll) ──────────────
                 SliverToBoxAdapter(
                   child: SizedBox(
-                    height: 260,
+                    height: 280,
                     child: ListView.builder(
                       physics: const BouncingScrollPhysics(),
                       scrollDirection: Axis.horizontal,
-                      padding: const EdgeInsets.fromLTRB(20, 12, 20, 12),
-                      itemCount: productProvider.allProducts.skip(5).take(5).length,
+                      padding: const EdgeInsets.fromLTRB(20, 14, 10, 14),
+                      itemCount: productProvider.allProducts.skip(6).take(6).length,
                       itemBuilder: (ctx, i) {
-                        final product = productProvider.allProducts[i + 5];
+                        final product = productProvider.allProducts[i + 6];
                         return Padding(
-                          padding: EdgeInsets.only(right: i < 4 ? 12 : 0),
+                          padding: EdgeInsets.only(right: i < 5 ? 14 : 10),
                           child: GestureDetector(
                             onTap: () {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (_) => ProductDetailScreen(product: product),
+                                  builder: (_) =>
+                                      ProductDetailScreen(product: product),
                                 ),
                               );
                             },
@@ -437,12 +724,134 @@ class MainHomeScreen extends StatelessWidget {
                   ),
                 ),
 
-                const SliverToBoxAdapter(child: SizedBox(height: 16)),
+                // ─── Categories Quick Access ────────────────────
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 24, 20, 16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Quick Categories',
+                          style: TextStyle(
+                            color: AppTheme.textLightPrimary,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        Consumer<ProductProvider>(
+                          builder: (ctx, productProvider, _) {
+                            final categories = productProvider.categories;
+                            if (categories.isEmpty) return const SizedBox.shrink();
+                            return SizedBox(
+                              height: 90,
+                              child: ListView.builder(
+                                physics: const BouncingScrollPhysics(),
+                                scrollDirection: Axis.horizontal,
+                                itemCount: categories.length,
+                                itemBuilder: (ctx, i) {
+                                  final cat = categories[i];
+                                  return Padding(
+                                    padding: const EdgeInsets.only(right: 12),
+                                    child: GestureDetector(
+                                      onTap: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (_) =>
+                                                CategoryProductsScreen(category: cat),
+                                          ),
+                                        );
+                                      },
+                                      child: Container(
+                                        width: 80,
+                                        decoration: BoxDecoration(
+                                          gradient: AppTheme.primaryGradient,
+                                          borderRadius: BorderRadius.circular(18),
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: AppTheme.primaryPurple
+                                                  .withValues(alpha: 0.2),
+                                              blurRadius: 10,
+                                              offset: const Offset(0, 4),
+                                            ),
+                                          ],
+                                        ),
+                                        child: Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            Container(
+                                              padding: const EdgeInsets.all(10),
+                                              decoration: BoxDecoration(
+                                                color: Colors.white
+                                                    .withValues(alpha: 0.2),
+                                                shape: BoxShape.circle,
+                                              ),
+                                              child: Icon(
+                                                _categoryEmoji(cat.id),
+                                                size: 22,
+                                                color: Colors.white,
+                                              ),
+                                            ),
+                                            const SizedBox(height: 6),
+                                            Text(
+                                              cat.name,
+                                              style: const TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 10,
+                                                fontWeight: FontWeight.w600,
+                                              ),
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                            );
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
+                const SliverToBoxAdapter(child: SizedBox(height: 100)),
               ],
             ],
           );
         },
       ),
     );
+  }
+
+  IconData _categoryEmoji(String categoryId) {
+    const map = {
+      'electronics': Icons.electrical_services_rounded,
+      "men's clothing": Icons.checkroom_rounded,
+      "women's clothing": Icons.checkroom_rounded,
+      'jewelery': Icons.diamond_rounded,
+      'sports': Icons.sports_soccer_rounded,
+      'furniture': Icons.chair_rounded,
+      'beauty': Icons.spa_rounded,
+      'accessories': Icons.watch_rounded,
+      'toys': Icons.toys_rounded,
+      'books': Icons.auto_stories_rounded,
+      'food': Icons.restaurant_rounded,
+      'health': Icons.local_hospital_rounded,
+      'music': Icons.music_note_rounded,
+      'tools': Icons.build_rounded,
+      'computers': Icons.computer_rounded,
+      'automotive': Icons.directions_car_rounded,
+      'home': Icons.house_rounded,
+      'industrial': Icons.factory_rounded,
+      'others': Icons.category_rounded,
+    };
+    return map[categoryId] ?? Icons.category_rounded;
   }
 }
