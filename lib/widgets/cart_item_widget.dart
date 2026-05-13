@@ -4,9 +4,14 @@ import '../theme/app_theme.dart';
 
 class CartItemWidget extends StatelessWidget {
   final CartItem item;
+  final VoidCallback onAdd;
   final VoidCallback onRemove;
 
-  const CartItemWidget({super.key, required this.item, required this.onRemove});
+  const CartItemWidget(
+      {super.key,
+      required this.item,
+      required this.onAdd,
+      required this.onRemove});
 
   @override
   Widget build(BuildContext context) {
@@ -92,9 +97,9 @@ class CartItemWidget extends StatelessWidget {
             ),
             child: Column(
               children: [
-                GestureDetector(
-                  onTap: () {},
-                  child: Container(
+GestureDetector(
+                   onTap: onAdd,
+                   child: Container(
                     width: 28,
                     height: 28,
                     decoration: BoxDecoration(

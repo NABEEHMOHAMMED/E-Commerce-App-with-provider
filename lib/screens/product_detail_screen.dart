@@ -25,12 +25,23 @@ class ProductDetailScreen extends StatelessWidget {
             backgroundColor: AppTheme.primaryPurple,
             leading: _buildCircleBackButton(context),
             actions: [
-              _buildCircleActionButton(
-                context,
-                icon: Icons.share_rounded,
-                onTap: () {},
-              ),
-            ],
+               _buildCircleActionButton(
+                 context,
+                 icon: Icons.share_rounded,
+                 onTap: () {
+                   ScaffoldMessenger.of(context).showSnackBar(
+                     SnackBar(
+                       content: const Text('Link copied to clipboard!'),
+                       backgroundColor: AppTheme.primaryPurple,
+                       duration: const Duration(seconds: 2),
+                       behavior: SnackBarBehavior.floating,
+                       shape: RoundedRectangleBorder(
+                           borderRadius: BorderRadius.circular(12)),
+                     ),
+                   );
+                 },
+               ),
+             ],
             flexibleSpace: FlexibleSpaceBar(
               centerTitle: true,
               title: Container(
@@ -177,12 +188,13 @@ class ProductDetailScreen extends StatelessWidget {
                   const SizedBox(height: 12),
 
                   // Rating & Time Row
-                  Row(
+                  Wrap(
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    spacing: 12,
+                    runSpacing: 8,
                     children: [
                       _buildRatingChip(),
-                      const SizedBox(width: 12),
                       _buildTimeChip(),
-                      const Spacer(),
                       _buildShareButton(),
                     ],
                   ),
@@ -337,31 +349,30 @@ class ProductDetailScreen extends StatelessWidget {
     );
   }
 
-Widget _buildPriceSection() {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.end,
+  Widget _buildPriceSection() {
+    return Wrap(
+      crossAxisAlignment: WrapCrossAlignment.end,
+      spacing: 10,
+      runSpacing: 8,
       children: [
         Text(
           '\$${product.price.toStringAsFixed(2)}',
           style: const TextStyle(
             color: AppTheme.textLightPrimary,
-            fontSize: 30,
+            fontSize: 28,
             fontWeight: FontWeight.bold,
           ),
         ),
-        const SizedBox(width: 10),
         if (product.oldPrice != null) ...[
           Text(
             '\$${product.oldPrice!.toStringAsFixed(2)}',
-            style: TextStyle(
+            style: const TextStyle(
               color: AppTheme.textLightMuted,
               fontSize: 16,
               decoration: TextDecoration.lineThrough,
-              decorationColor: AppTheme.textLightMuted,
               fontWeight: FontWeight.w500,
             ),
           ),
-          const SizedBox(width: 8),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
             decoration: BoxDecoration(

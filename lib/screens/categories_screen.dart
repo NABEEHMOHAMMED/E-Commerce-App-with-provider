@@ -54,30 +54,57 @@ class CategoriesScreen extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 16),
+              height: 52,
               decoration: BoxDecoration(
-                color: AppTheme.bgLightSurface,
+                color: const Color.fromARGB(255, 246, 241, 241),
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: Colors.grey.withValues(alpha: 0.1)),
+                border: Border.all(
+                  color: AppTheme.primaryPurple.withValues(alpha: 0.1),
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color.fromARGB(
+                      255,
+                      254,
+                      254,
+                      254,
+                    ).withValues(alpha: 0.03),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
               ),
               child: const Row(
                 children: [
                   Icon(
                     Icons.search_rounded,
-                    color: AppTheme.textLightMuted,
-                    size: 20,
+                    color: AppTheme.primaryPurple,
+                    size: 22,
                   ),
-                  SizedBox(width: 10),
+                  SizedBox(width: 12),
                   Expanded(
                     child: TextField(
                       decoration: InputDecoration(
                         hintText: 'Search categories...',
                         hintStyle: TextStyle(
-                          color: AppTheme.textLightMuted,
-                          fontSize: 13,
+                          color: Color.fromARGB(255, 240, 241, 244),
+                          fontSize: 14,
                         ),
                         border: InputBorder.none,
+                        isDense: true,
+                        contentPadding: EdgeInsets.zero,
+                      ),
+                      style: TextStyle(
+                        color: Color.fromARGB(255, 158, 158, 163),
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
+                  ),
+                  Icon(
+                    Icons.tune_rounded,
+                    color: AppTheme.primaryPurple,
+                    size: 20,
                   ),
                 ],
               ),
@@ -136,18 +163,18 @@ class CategoriesScreen extends StatelessWidget {
                     ),
                   );
                 }
-return GridView.builder(
-                   physics: const BouncingScrollPhysics(),
-                   padding: const EdgeInsets.symmetric(
-                     horizontal: 20,
-                     vertical: 12,
-                   ),
-                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                     crossAxisCount: 3,
-                     childAspectRatio: 0.9,
-                     crossAxisSpacing: 12,
-                     mainAxisSpacing: 12,
-                   ),
+                return GridView.builder(
+                  physics: const BouncingScrollPhysics(),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 12,
+                  ),
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 3,
+                    childAspectRatio: 0.9,
+                    crossAxisSpacing: 12,
+                    mainAxisSpacing: 12,
+                  ),
                   itemCount: categories.length,
                   itemBuilder: (ctx, index) {
                     return _CategoryCard(category: categories[index]);
@@ -216,66 +243,66 @@ class _CategoryCard extends StatelessWidget {
         );
       },
       child: Container(
-decoration: BoxDecoration(
-           gradient: LinearGradient(
-             colors: [
-               color.withValues(alpha: 0.12),
-               color.withValues(alpha: 0.03),
-             ],
-             begin: Alignment.topLeft,
-             end: Alignment.bottomRight,
-           ),
-           borderRadius: BorderRadius.circular(16),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              color.withValues(alpha: 0.12),
+              color.withValues(alpha: 0.03),
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(16),
           border: Border.all(color: color.withValues(alpha: 0.1), width: 1),
-boxShadow: [
-             BoxShadow(
-               color: color.withValues(alpha: 0.04),
-               blurRadius: 6,
-               offset: const Offset(0, 2),
-             ),
-           ],
+          boxShadow: [
+            BoxShadow(
+              color: color.withValues(alpha: 0.04),
+              blurRadius: 6,
+              offset: const Offset(0, 2),
+            ),
+          ],
         ),
-child: Column(
-           mainAxisAlignment: MainAxisAlignment.center,
-           children: [
-             Container(
-               padding: const EdgeInsets.all(12),
-               decoration: BoxDecoration(
-                 color: color.withValues(alpha: 0.15),
-                 shape: BoxShape.circle,
-               ),
-               child: Icon(icon, color: color, size: 24),
-             ),
-             const SizedBox(height: 8),
-             Text(
-               category.name,
-               textAlign: TextAlign.center,
-               maxLines: 2,
-               overflow: TextOverflow.ellipsis,
-               style: TextStyle(
-                 color: AppTheme.textLightPrimary,
-                 fontSize: 11,
-                 fontWeight: FontWeight.w600,
-               ),
-             ),
-             const SizedBox(height: 2),
-             Container(
-               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-               decoration: BoxDecoration(
-                 color: color.withValues(alpha: 0.06),
-                 borderRadius: BorderRadius.circular(6),
-               ),
-               child: Text(
-                 '${category.productCount} products',
-                 style: TextStyle(
-                   color: color.withValues(alpha: 0.8),
-                   fontSize: 8,
-                   fontWeight: FontWeight.w500,
-                 ),
-               ),
-             ),
-           ],
-         ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: color.withValues(alpha: 0.15),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(icon, color: color, size: 24),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              category.name,
+              textAlign: TextAlign.center,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                color: AppTheme.textLightPrimary,
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(height: 2),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+              decoration: BoxDecoration(
+                color: color.withValues(alpha: 0.06),
+                borderRadius: BorderRadius.circular(6),
+              ),
+              child: Text(
+                '${category.productCount} products',
+                style: TextStyle(
+                  color: color.withValues(alpha: 0.8),
+                  fontSize: 8,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

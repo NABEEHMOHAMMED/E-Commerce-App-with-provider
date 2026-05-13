@@ -47,177 +47,33 @@ class ProductProvider extends ChangeNotifier {
 
   // ─── Constructor ─────────────────────────────────────────────────────
   ProductProvider() {
-    // تحميل البيانات من الكاش أولاً ثم محاولة التحديث من الإنترنت
-    Future.microtask(() async {
-      try {
-        await _loadFromDisk(); // تحميل البيانات المخزنة أولاً
-        _buildCategoriesFromProducts();
-        await _initConnectivity();
-        await fetchProducts(); // محاولة التحديث إذا كان هناك اتصال
-        _addMockProducts();
-      } catch (e) {
-        debugPrint('Critical error in ProductProvider init: $e');
-      }
-    });
+    Future.microtask(() => _initializeData());
   }
 
-// ─── Initialize Connectivity Listener ───────────────────────────────
-   Future<void> _initConnectivity() async {
-     try {
-       final dynamic result = await Connectivity().checkConnectivity();
-       final List<ConnectivityResult> results = result is List
-           ? List<ConnectivityResult>.from(result)
-           : [result as ConnectivityResult];
-       _isConnected = !results.contains(ConnectivityResult.none);
-     } catch (e) {
-       _isConnected = true; // افتراض الاتصال إذا فشل التحقق
-     }
-
-     // لا نستخدم مستمع الاتصال لتفادي المشاكل
-   }
-
-  // ─── Fetch Products from API or Load from Cache ─────────────────────
-  /// Fetches products from FakeStore API if online.
-  /// If offline or API fails, loads products from local cache.
-  Future<void> fetchProducts({bool showOfflineMessage = true}) async {
+  Future<void> _initializeData() async {
     _isLoading = true;
-    _errorMessage = null;
-    notifyListeners();
+    // Don't notify yet to avoid empty screen flicker
 
     try {
-      // Check connectivity first
-      final dynamic result = await Connectivity().checkConnectivity();
-      final List<ConnectivityResult> results = result is List
-          ? List<ConnectivityResult>.from(result)
-          : [result as ConnectivityResult];
-      _isConnected = !results.contains(ConnectivityResult.none);
-
-      if (_isConnected) {
-        // Online: fetch from API and cache the response
-        _allProducts = await ApiService.fetchProducts();
-        await _saveToDisk();
-        _buildCategoriesFromProducts();
-        debugPrint(
-          ' Products fetched from API and cached. Count: ${_allProducts.length}',
-        );
-      } else {
-        // Offline: load from cache
-        await _loadFromDisk();
-        if (showOfflineMessage) {
-          _errorMessage = 'Offline mode: Showing cached data';
-        }
-        debugPrint(
-          '📱 Offline mode: loaded from cache. Count: ${_allProducts.length}',
-        );
-      }
+      await _loadFromDisk(); // Load cached data first
+      _addMockProductsNoNotify(); // Add mock data without notifying
+      _buildCategoriesFromProducts(); // Build categories
+      
+      await _initConnectivity();
     } catch (e) {
-      debugPrint(' API Error: $e');
-      await _loadFromDisk();
-      if (showOfflineMessage) {
-        _errorMessage = 'Offline mode: Showing cached data';
-      }
-      debugPrint('📱 Fallback to cache. Count: ${_allProducts.length}');
+      debugPrint('Error in ProductProvider init: $e');
     } finally {
       _isLoading = false;
-      notifyListeners();
-    }
-  }
-
-  // ─── Save Products to Local File (Caching) ───────────────────────────
-  Future<void> _saveToDisk() async {
-    try {
-      final directory = await getApplicationDocumentsDirectory();
-      final file = File('${directory.path}/products_cache.json');
-
-      final String jsonString = json.encode(
-        _allProducts.map((p) => p.toJson()).toList(),
-      );
-
-      await file.writeAsString(jsonString);
-      debugPrint(' Products cached successfully to: ${file.path}');
-    } catch (e) {
-      debugPrint('Error caching products: $e');
-    }
-  }
-
-  // ─── Load Products from Local File (Offline Fallback) ─────────────────
-  Future<void> _loadFromDisk() async {
-    try {
-      final directory = await getApplicationDocumentsDirectory();
-      final file = File('${directory.path}/products_cache.json');
-
-      if (await file.exists()) {
-        final String jsonString = await file.readAsString();
-        final List<dynamic> jsonList = json.decode(jsonString);
-
-        _allProducts = jsonList.map((item) => Product.fromJson(item)).toList();
-
-        _buildCategoriesFromProducts();
-        debugPrint(
-          ' Products loaded from cache. Count: ${_allProducts.length}',
-        );
-      } else {
-        _errorMessage = 'No cached data available. Please connect to internet.';
-        _allProducts = [];
-        _categories = [];
-        debugPrint(' No cache file found.');
-      }
-    } catch (e) {
-      debugPrint('Error loading products from cache: $e');
-      _errorMessage = 'Failed to load cached data.';
-      _allProducts = [];
-      _categories = [];
-    }
-  }
-
-  // ─── Build Categories Dynamically ────────────────────────────────────
-  void _buildCategoriesFromProducts() {
-    final Map<String, int> categoryCounts = {};
-    for (final product in _allProducts) {
-      categoryCounts[product.categoryId] =
-          (categoryCounts[product.categoryId] ?? 0) + 1;
-    }
-
-    _categories = categoryCounts.entries.map((entry) {
-      return Category(
-        id: entry.key,
-        name: _formatCategoryName(entry.key),
-        icon: _categoryIcons[entry.key] ?? '📦',
-        imageUrl: '',
-        productCount: entry.value,
-      );
-    }).toList();
-
-    // إضافة فئات إضافية لملء التطبيق (Mock Categories)
-    final extraCategories = [
-      'smartphones',
-      'watches',
-      'shoes',
-      'furniture',
-      'beauty',
-      'toys',
-      'sports',
-      'groceries',
-      'accessories',
-      'gaming',
-    ];
-    for (var catId in extraCategories) {
-      if (!_categories.any((c) => c.id == catId)) {
-        _categories.add(
-          Category(
-            id: catId,
-            name: _formatCategoryName(catId),
-            icon: _categoryIcons[catId] ?? '📦',
-            imageUrl: '',
-            productCount: 0,
-          ),
-        );
+      notifyListeners(); // Single notification after everything is ready
+      
+      // Attempt background update from API if online
+      if (_isConnected) {
+        fetchProducts(showOfflineMessage: false);
       }
     }
   }
 
-  /// يضيف منتجات وهمية لتجربة الفئات الجديدة
-  void _addMockProducts() {
+  void _addMockProductsNoNotify() {
     final mockData = [
       Product(
         id: 'm1',
@@ -330,8 +186,166 @@ class ProductProvider extends ChangeNotifier {
         _allProducts.add(product);
       }
     }
-    _buildCategoriesFromProducts();
+  }
+
+// ─── Initialize Connectivity Listener ───────────────────────────────
+   Future<void> _initConnectivity() async {
+     try {
+       final dynamic result = await Connectivity().checkConnectivity();
+       final List<ConnectivityResult> results = result is List
+           ? List<ConnectivityResult>.from(result)
+           : [result as ConnectivityResult];
+       _isConnected = !results.contains(ConnectivityResult.none);
+     } catch (e) {
+       _isConnected = true; // افتراض الاتصال إذا فشل التحقق
+     }
+
+     // لا نستخدم مستمع الاتصال لتفادي المشاكل
+   }
+
+  // ─── Fetch Products from API or Load from Cache ─────────────────────
+  /// Fetches products from FakeStore API if online.
+  /// If offline or API fails, loads products from local cache.
+  Future<void> fetchProducts({bool showOfflineMessage = true}) async {
+    _isLoading = true;
+    _errorMessage = null;
     notifyListeners();
+
+    try {
+      // Check connectivity first
+      final dynamic result = await Connectivity().checkConnectivity();
+      final List<ConnectivityResult> results = result is List
+          ? List<ConnectivityResult>.from(result)
+          : [result as ConnectivityResult];
+      _isConnected = !results.contains(ConnectivityResult.none);
+
+      if (_isConnected) {
+        // Online: fetch from API and cache the response
+        final fetchedProducts = await ApiService.fetchProducts();
+        if (fetchedProducts.isNotEmpty) {
+          _allProducts = fetchedProducts;
+          // Note: Mock data is replaced by API data when online
+          await _saveToDisk();
+          _buildCategoriesFromProducts();
+        }
+        debugPrint(
+          ' Products fetched from API and cached. Count: ${_allProducts.length}',
+        );
+      } else {
+        // Offline: load from cache
+        await _loadFromDisk();
+        if (showOfflineMessage) {
+          _errorMessage = 'Offline mode: Showing cached data';
+        }
+        debugPrint(
+          '📱 Offline mode: loaded from cache. Count: ${_allProducts.length}',
+        );
+      }
+    } catch (e) {
+      debugPrint(' API Error: $e');
+      await _loadFromDisk();
+      if (showOfflineMessage) {
+        _errorMessage = 'Offline mode: Showing cached data';
+      }
+      debugPrint('📱 Fallback to cache. Count: ${_allProducts.length}');
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  // ─── Save Products to Local File (Caching) ───────────────────────────
+  Future<void> _saveToDisk() async {
+    try {
+      final directory = await getApplicationDocumentsDirectory();
+      final file = File('${directory.path}/products_cache.json');
+
+      final String jsonString = json.encode(
+        _allProducts.map((p) => p.toJson()).toList(),
+      );
+
+      await file.writeAsString(jsonString);
+      debugPrint(' Products cached successfully to: ${file.path}');
+    } catch (e) {
+      debugPrint('Error caching products: $e');
+    }
+  }
+
+  // ─── Load Products from Local File (Offline Fallback) ─────────────────
+  Future<void> _loadFromDisk() async {
+    try {
+      final directory = await getApplicationDocumentsDirectory();
+      final file = File('${directory.path}/products_cache.json');
+
+      if (await file.exists()) {
+        final String jsonString = await file.readAsString();
+        final List<dynamic> jsonList = json.decode(jsonString);
+
+        _allProducts = jsonList.map((item) => Product.fromJson(item)).toList();
+        debugPrint(
+          ' Products loaded from cache. Count: ${_allProducts.length}',
+        );
+      } else {
+        _errorMessage = 'No cached data available. Showing default items.';
+        debugPrint(' No cache file found.');
+      }
+      
+      // Always ensure mock products are present
+      _addMockProductsNoNotify();
+      _buildCategoriesFromProducts();
+      
+    } catch (e) {
+      debugPrint('Error loading products from cache: $e');
+      _errorMessage = 'Failed to load cached data.';
+      _addMockProductsNoNotify();
+      _buildCategoriesFromProducts();
+    }
+  }
+
+  // ─── Build Categories Dynamically ────────────────────────────────────
+  void _buildCategoriesFromProducts() {
+    final Map<String, int> categoryCounts = {};
+    for (final product in _allProducts) {
+      categoryCounts[product.categoryId] =
+          (categoryCounts[product.categoryId] ?? 0) + 1;
+    }
+
+    _categories = categoryCounts.entries.map((entry) {
+      return Category(
+        id: entry.key,
+        name: _formatCategoryName(entry.key),
+        icon: _categoryIcons[entry.key] ?? '📦',
+        imageUrl: '',
+        productCount: entry.value,
+      );
+    }).toList();
+
+    // إضافة فئات إضافية لملء التطبيق (Mock Categories)
+    final extraCategories = [
+      'smartphones',
+      'watches',
+      'shoes',
+      'furniture',
+      'beauty',
+      'toys',
+      'sports',
+      'groceries',
+      'accessories',
+      'gaming',
+    ];
+    for (var catId in extraCategories) {
+      if (!_categories.any((c) => c.id == catId)) {
+        _categories.add(
+          Category(
+            id: catId,
+            name: _formatCategoryName(catId),
+            icon: _categoryIcons[catId] ?? '📦',
+            imageUrl: '',
+            productCount: 0,
+          ),
+        );
+      }
+    }
   }
 
   /// Formats raw category ID into a display-friendly name.

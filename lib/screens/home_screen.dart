@@ -59,31 +59,37 @@ class HomeScreen extends StatelessWidget {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
-                    _buildNavItem(
-                      context,
-                      navProvider,
-                      0,
-                      Icons.home_filled,
-                      Icons.home_outlined,
-                      'Home',
+                    Expanded(
+                      child: _buildNavItem(
+                        context,
+                        navProvider,
+                        0,
+                        Icons.home_filled,
+                        Icons.home_outlined,
+                        'Home',
+                      ),
                     ),
-                    _buildNavItem(
-                      context,
-                      navProvider,
-                      1,
-                      Icons.grid_view_rounded,
-                      Icons.grid_view_outlined,
-                      'Categories',
+                    Expanded(
+                      child: _buildNavItem(
+                        context,
+                        navProvider,
+                        1,
+                        Icons.grid_view_rounded,
+                        Icons.grid_view_outlined,
+                        'Categories',
+                      ),
                     ),
-                    _buildFavoriteNavItem(context, navProvider),
-                    _buildCartNavItem(context, navProvider),
-                    _buildNavItem(
-                      context,
-                      navProvider,
-                      4,
-                      Icons.person_rounded,
-                      Icons.person_outline_rounded,
-                      'Profile',
+                    Expanded(child: _buildFavoriteNavItem(context, navProvider)),
+                    Expanded(child: _buildCartNavItem(context, navProvider)),
+                    Expanded(
+                      child: _buildNavItem(
+                        context,
+                        navProvider,
+                        4,
+                        Icons.person_rounded,
+                        Icons.person_outline_rounded,
+                        'Profile',
+                      ),
                     ),
                   ],
                 ),
@@ -101,195 +107,132 @@ class HomeScreen extends StatelessWidget {
     int index,
     IconData activeIcon,
     IconData inactiveIcon,
-    String label,
-  ) {
+    String label, {
+    Widget? badge,
+  }) {
     final isSelected = nav.selectedIndex == index;
     return GestureDetector(
       onTap: () => nav.setSelectedIndex(index),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeInOut,
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-        decoration: BoxDecoration(
-          color: isSelected
-              ? AppTheme.primaryPurple.withValues(alpha: 0.08)
-              : Colors.transparent,
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            AnimatedSwitcher(
-              duration: const Duration(milliseconds: 200),
-              transitionBuilder: (Widget child, Animation<double> animation) {
-                return ScaleTransition(scale: animation, child: child);
-              },
-              child: Icon(
-                isSelected ? activeIcon : inactiveIcon,
-                key: ValueKey(isSelected),
-                color: isSelected
-                    ? AppTheme.primaryPurple
-                    : AppTheme.navInactive,
-                size: 24,
-              ),
+      child: Stack(
+        clipBehavior: Clip.none,
+        alignment: Alignment.center,
+        children: [
+          AnimatedContainer(
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeInOut,
+            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+            decoration: BoxDecoration(
+              color: isSelected
+                  ? AppTheme.primaryPurple.withValues(alpha: 0.08)
+                  : Colors.transparent,
+              borderRadius: BorderRadius.circular(16),
             ),
-            const SizedBox(height: 4),
-            Text(
-              label,
-              style: TextStyle(
-                color: isSelected
-                    ? AppTheme.primaryPurple
-                    : AppTheme.navInactive,
-                fontSize: 10,
-                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w400,
-              ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 200),
+                  transitionBuilder: (Widget child, Animation<double> animation) {
+                    return ScaleTransition(scale: animation, child: child);
+                  },
+                  child: Icon(
+                    isSelected ? activeIcon : inactiveIcon,
+                    key: ValueKey(isSelected),
+                    color: isSelected
+                        ? AppTheme.primaryPurple
+                        : AppTheme.navInactive,
+                    size: 24,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: isSelected
+                        ? AppTheme.primaryPurple
+                        : AppTheme.navInactive,
+                    fontSize: 9,
+                    fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                  ),
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+          if (badge != null)
+            Positioned(
+              top: 4,
+              right: 8,
+              child: badge,
+            ),
+        ],
       ),
     );
   }
 
   Widget _buildCartNavItem(BuildContext context, NavigationProvider nav) {
-    final isSelected = nav.selectedIndex == 3;
-    return GestureDetector(
-      onTap: () => nav.setSelectedIndex(3),
-      child: Stack(
-        clipBehavior: Clip.none,
-        children: [
-          AnimatedContainer(
-            duration: const Duration(milliseconds: 300),
-            curve: Curves.easeInOut,
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-            decoration: BoxDecoration(
-              color: isSelected
-                  ? AppTheme.primaryPurple.withValues(alpha: 0.08)
-                  : Colors.transparent,
-              borderRadius: BorderRadius.circular(16),
+    return _buildNavItem(
+      context,
+      nav,
+      3,
+      Icons.shopping_cart_rounded,
+      Icons.shopping_cart_outlined,
+      'Cart',
+      badge: Consumer<CartProvider>(
+        builder: (ctx, cart, _) {
+          if (cart.itemCount == 0) return const SizedBox.shrink();
+          return Container(
+            padding: const EdgeInsets.all(4),
+            decoration: const BoxDecoration(
+              color: AppTheme.neonRed,
+              shape: BoxShape.circle,
             ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(
-                  isSelected
-                      ? Icons.shopping_cart_rounded
-                      : Icons.shopping_cart_outlined,
-                  color: isSelected
-                      ? AppTheme.primaryPurple
-                      : AppTheme.navInactive,
-                  size: 24,
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  'Cart',
-                  style: TextStyle(
-                    color: isSelected
-                        ? AppTheme.primaryPurple
-                        : AppTheme.navInactive,
-                    fontSize: 10,
-                    fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                  ),
-                ),
-              ],
+            constraints: const BoxConstraints(minWidth: 14, minHeight: 14),
+            child: Text(
+              '${cart.itemCount}',
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 8,
+                fontWeight: FontWeight.bold,
+              ),
+              textAlign: TextAlign.center,
             ),
-          ),
-          Consumer<CartProvider>(
-            builder: (ctx, cart, _) {
-              if (cart.itemCount == 0) return const SizedBox.shrink();
-              return Positioned(
-                right: 2,
-                top: 0,
-                child: Container(
-                  padding: const EdgeInsets.all(5),
-                  decoration: const BoxDecoration(
-                    color: AppTheme.neonRed,
-                    shape: BoxShape.circle,
-                  ),
-                  child: Text(
-                    '${cart.itemCount}',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 9,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              );
-            },
-          ),
-        ],
+          );
+        },
       ),
     );
   }
 
   Widget _buildFavoriteNavItem(BuildContext context, NavigationProvider nav) {
-    final isSelected = nav.selectedIndex == 2;
-    return GestureDetector(
-      onTap: () => nav.setSelectedIndex(2),
-      child: Stack(
-        clipBehavior: Clip.none,
-        children: [
-          AnimatedContainer(
-            duration: const Duration(milliseconds: 300),
-            curve: Curves.easeInOut,
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-            decoration: BoxDecoration(
-              color: isSelected
-                  ? AppTheme.primaryPurple.withValues(alpha: 0.08)
-                  : Colors.transparent,
-              borderRadius: BorderRadius.circular(16),
+    return _buildNavItem(
+      context,
+      nav,
+      2,
+      Icons.favorite_rounded,
+      Icons.favorite_border_rounded,
+      'Favorites',
+      badge: Consumer<FavoriteProvider>(
+        builder: (ctx, favs, _) {
+          if (favs.favorites.isEmpty) return const SizedBox.shrink();
+          return Container(
+            padding: const EdgeInsets.all(4),
+            decoration: const BoxDecoration(
+              color: AppTheme.neonRed,
+              shape: BoxShape.circle,
             ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(
-                  isSelected
-                      ? Icons.favorite_rounded
-                      : Icons.favorite_border_rounded,
-                  color: isSelected
-                      ? AppTheme.primaryPurple
-                      : AppTheme.navInactive,
-                  size: 24,
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  'Favorites',
-                  style: TextStyle(
-                    color: isSelected
-                        ? AppTheme.primaryPurple
-                        : AppTheme.navInactive,
-                    fontSize: 10,
-                    fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                  ),
-                ),
-              ],
+            constraints: const BoxConstraints(minWidth: 14, minHeight: 14),
+            child: Text(
+              '${favs.favorites.length}',
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 8,
+                fontWeight: FontWeight.bold,
+              ),
+              textAlign: TextAlign.center,
             ),
-          ),
-          Consumer<FavoriteProvider>(
-            builder: (ctx, favs, _) {
-              if (favs.favorites.isEmpty) return const SizedBox.shrink();
-              return Positioned(
-                right: 2,
-                top: 0,
-                child: Container(
-                  padding: const EdgeInsets.all(5),
-                  decoration: const BoxDecoration(
-                    color: AppTheme.neonPink,
-                    shape: BoxShape.circle,
-                  ),
-                  child: Text(
-                    '${favs.favorites.length}',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 9,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              );
-            },
-          ),
-        ],
+          );
+        },
       ),
     );
   }
@@ -596,6 +539,7 @@ class MainHomeScreen extends StatelessWidget {
                               width: 120,
                               height: 120,
                               fit: BoxFit.cover,
+                              cacheHeight: 240, // Optimize memory usage
                               errorBuilder: (_, _, _) =>
                                   const SizedBox.shrink(),
                             ),
