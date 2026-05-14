@@ -56,7 +56,9 @@ class CategoriesScreen extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 16),
               height: 52,
               decoration: BoxDecoration(
-                color: const Color.fromARGB(255, 246, 241, 241),
+                color: Theme.of(context).brightness == Brightness.dark
+                    ? AppTheme.bgSurface
+                    : AppTheme.bgLightSurface,
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(
                   color: AppTheme.primaryPurple.withValues(alpha: 0.1),
@@ -74,34 +76,41 @@ class CategoriesScreen extends StatelessWidget {
                   ),
                 ],
               ),
-              child: const Row(
+              child: Row(
                 children: [
-                  Icon(
+                  const Icon(
                     Icons.search_rounded,
                     color: AppTheme.primaryPurple,
                     size: 22,
                   ),
-                  SizedBox(width: 12),
+                  const SizedBox(width: 12),
                   Expanded(
                     child: TextField(
                       decoration: InputDecoration(
                         hintText: 'Search categories...',
                         hintStyle: TextStyle(
-                          color: Color.fromARGB(255, 240, 241, 244),
+                          color: Theme.of(context).brightness == Brightness.dark
+                              ? AppTheme.textLightMuted
+                              : AppTheme.textLightMuted.withValues(alpha: 0.6),
                           fontSize: 14,
                         ),
                         border: InputBorder.none,
+                        enabledBorder: InputBorder.none,
+                        focusedBorder: InputBorder.none,
+                        filled: false,
                         isDense: true,
                         contentPadding: EdgeInsets.zero,
                       ),
                       style: TextStyle(
-                        color: Color.fromARGB(255, 158, 158, 163),
+                        color: Theme.of(context).brightness == Brightness.dark
+                            ? Colors.white
+                            : AppTheme.textLightPrimary,
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
                   ),
-                  Icon(
+                  const Icon(
                     Icons.tune_rounded,
                     color: AppTheme.primaryPurple,
                     size: 20,
