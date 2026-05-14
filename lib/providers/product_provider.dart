@@ -236,7 +236,7 @@ class ProductProvider extends ChangeNotifier {
           _errorMessage = 'Offline mode: Showing cached data';
         }
         debugPrint(
-          '📱 Offline mode: loaded from cache. Count: ${_allProducts.length}',
+          ' Offline mode: loaded from cache. Count: ${_allProducts.length}',
         );
       }
     } catch (e) {
@@ -293,7 +293,7 @@ class ProductProvider extends ChangeNotifier {
       _buildCategoriesFromProducts();
     } catch (e) {
       debugPrint('Error loading products from cache: $e');
-      _errorMessage = 'Failed to load cached data.';
+      // _errorMessage = 'Failed to load cached data.';
       _addMockProductsNoNotify();
       _buildCategoriesFromProducts();
     }
