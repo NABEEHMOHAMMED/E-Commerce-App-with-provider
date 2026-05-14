@@ -58,14 +58,14 @@ class ProductProvider extends ChangeNotifier {
       await _loadFromDisk(); // Load cached data first
       _addMockProductsNoNotify(); // Add mock data without notifying
       _buildCategoriesFromProducts(); // Build categories
-      
+
       await _initConnectivity();
     } catch (e) {
       debugPrint('Error in ProductProvider init: $e');
     } finally {
       _isLoading = false;
       notifyListeners(); // Single notification after everything is ready
-      
+
       // Attempt background update from API if online
       if (_isConnected) {
         fetchProducts(showOfflineMessage: false);
@@ -188,20 +188,18 @@ class ProductProvider extends ChangeNotifier {
     }
   }
 
-// ─── Initialize Connectivity Listener ───────────────────────────────
-   Future<void> _initConnectivity() async {
-     try {
-       final dynamic result = await Connectivity().checkConnectivity();
-       final List<ConnectivityResult> results = result is List
-           ? List<ConnectivityResult>.from(result)
-           : [result as ConnectivityResult];
-       _isConnected = !results.contains(ConnectivityResult.none);
-     } catch (e) {
-       _isConnected = true; // افتراض الاتصال إذا فشل التحقق
-     }
-
-     // لا نستخدم مستمع الاتصال لتفادي المشاكل
-   }
+  // ─── Initialize Connectivity Listener ───────────────────────────────
+  Future<void> _initConnectivity() async {
+    try {
+      final dynamic result = await Connectivity().checkConnectivity();
+      final List<ConnectivityResult> results = result is List
+          ? List<ConnectivityResult>.from(result)
+          : [result as ConnectivityResult];
+      _isConnected = !results.contains(ConnectivityResult.none);
+    } catch (e) {
+      _isConnected = true; // افتراض الاتصال إذا فشل التحقق
+    }
+  }
 
   // ─── Fetch Products from API or Load from Cache ─────────────────────
   /// Fetches products from FakeStore API if online.
@@ -286,14 +284,13 @@ class ProductProvider extends ChangeNotifier {
           ' Products loaded from cache. Count: ${_allProducts.length}',
         );
       } else {
-        _errorMessage = 'No cached data available. Showing default items.';
-        debugPrint(' No cache file found.');
+        // _errorMessage = 'No cached data available. Showing default items.';
+        // debugPrint(' No cache file found.');
       }
-      
+
       // Always ensure mock products are present
       _addMockProductsNoNotify();
       _buildCategoriesFromProducts();
-      
     } catch (e) {
       debugPrint('Error loading products from cache: $e');
       _errorMessage = 'Failed to load cached data.';
