@@ -52,10 +52,15 @@ class FavoriteProvider extends ChangeNotifier {
       final file = await _getFavoritesFile();
       
       // تحويل قائمة الكائنات إلى JSON (Encoding)
-      // نكتفي بالبيانات الأساسية فقط كما هو مطلوب
-      final String jsonString = json.encode(
-        _favorites.map((p) => p.toJson()).toList(),
-      );
+      // نكتفي بالبيانات الأساسية فقط كما هو مطلوب في التمرين 2
+      final List<Map<String, dynamic>> minimalList = _favorites.map((p) => {
+        'id': p.id,
+        'title': p.name,
+        'price': p.price,
+        'image': p.imageUrl,
+      }).toList();
+      
+      final String jsonString = json.encode(minimalList);
       
       await file.writeAsString(jsonString);
       debugPrint('Favorites saved successfully to: ${file.path}');

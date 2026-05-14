@@ -79,7 +79,9 @@ class HomeScreen extends StatelessWidget {
                         'Categories',
                       ),
                     ),
-                    Expanded(child: _buildFavoriteNavItem(context, navProvider)),
+                    Expanded(
+                      child: _buildFavoriteNavItem(context, navProvider),
+                    ),
                     Expanded(child: _buildCartNavItem(context, navProvider)),
                     Expanded(
                       child: _buildNavItem(
@@ -132,9 +134,10 @@ class HomeScreen extends StatelessWidget {
               children: [
                 AnimatedSwitcher(
                   duration: const Duration(milliseconds: 200),
-                  transitionBuilder: (Widget child, Animation<double> animation) {
-                    return ScaleTransition(scale: animation, child: child);
-                  },
+                  transitionBuilder:
+                      (Widget child, Animation<double> animation) {
+                        return ScaleTransition(scale: animation, child: child);
+                      },
                   child: Icon(
                     isSelected ? activeIcon : inactiveIcon,
                     key: ValueKey(isSelected),
@@ -160,12 +163,7 @@ class HomeScreen extends StatelessWidget {
               ],
             ),
           ),
-          if (badge != null)
-            Positioned(
-              top: 4,
-              right: 8,
-              child: badge,
-            ),
+          if (badge != null) Positioned(top: 4, right: 8, child: badge),
         ],
       ),
     );
@@ -252,679 +250,690 @@ class MainHomeScreen extends StatelessWidget {
               productProvider.errorMessage != null &&
               productProvider.allProducts.isNotEmpty;
 
-          return CustomScrollView(
-            physics: const BouncingScrollPhysics(),
-            slivers: [
-              // ─── App Bar ─────────────────────────────────────
-              SliverAppBar(
-                expandedHeight: 200,
-                pinned: true,
-                backgroundColor: AppTheme.primaryPurple,
-                flexibleSpace: FlexibleSpaceBar(
-                  title: const Text(
-                    'ShopWave',
-                    style: TextStyle(
-                      fontWeight: FontWeight.w800,
-                      fontSize: 22,
-                      color: Colors.white,
-                      letterSpacing: 1.2,
-                    ),
-                  ),
-                  centerTitle: true,
-                  background: Container(
-                    decoration: const BoxDecoration(
-                      gradient: AppTheme.heroGradient,
-                    ),
-                    child: Stack(
-                      children: [
-                        Positioned(
-                          top: -40,
-                          right: -60,
-                          child: Container(
-                            width: 200,
-                            height: 200,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: Colors.white.withValues(alpha: 0.08),
-                            ),
-                          ),
-                        ),
-                        Positioned(
-                          bottom: -60,
-                          left: -40,
-                          child: Container(
-                            width: 160,
-                            height: 160,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: Colors.white.withValues(alpha: 0.05),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                bottom: PreferredSize(
-                  preferredSize: const Size.fromHeight(1),
-                  child: Container(
-                    height: 1,
-                    color: Colors.white.withValues(alpha: 0.2),
-                  ),
-                ),
+          return RefreshIndicator(
+            onRefresh: () => productProvider.fetchProducts(),
+            color: AppTheme.primaryPurple,
+            child: CustomScrollView(
+              physics: const AlwaysScrollableScrollPhysics(
+                parent: BouncingScrollPhysics(),
               ),
-
-              // ─── Status Banner ───────────────────────────────
-              if (showStatusBanner)
-                SliverToBoxAdapter(
-                  child: Container(
-                    width: double.infinity,
-                    margin: const EdgeInsets.fromLTRB(16, 12, 16, 0),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 14,
-                    ),
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [
-                          AppTheme.accentOrange.withValues(alpha: 0.9),
-                          AppTheme.neonRed.withValues(alpha: 0.85),
-                        ],
-                        begin: Alignment.centerLeft,
-                        end: Alignment.centerRight,
+              slivers: [
+                // ─── App Bar ─────────────────────────────────────
+                SliverAppBar(
+                  expandedHeight: 200,
+                  pinned: true,
+                  backgroundColor: AppTheme.primaryPurple,
+                  flexibleSpace: FlexibleSpaceBar(
+                    title: const Text(
+                      'ShopWave',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w800,
+                        fontSize: 22,
+                        color: Colors.white,
+                        letterSpacing: 1.2,
                       ),
-                      borderRadius: BorderRadius.circular(16),
-                      boxShadow: [
-                        BoxShadow(
-                          color: AppTheme.accentOrange.withValues(alpha: 0.25),
-                          blurRadius: 12,
-                          offset: const Offset(0, 6),
-                        ),
-                      ],
                     ),
-                    child: Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(6),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: 0.2),
-                            shape: BoxShape.circle,
-                          ),
-                          child: Icon(
-                            productProvider.isConnected
-                                ? Icons.warning_rounded
-                                : Icons.wifi_off_rounded,
-                            color: Colors.white,
-                            size: 18,
-                          ),
-                        ),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: Text(
-                            productProvider.errorMessage ?? '',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 13,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-
-              // ─── Loading State ───────────────────────────────
-              if (productProvider.isLoading &&
-                  productProvider.allProducts.isEmpty)
-                SliverFillRemaining(
-                  child: Center(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Container(
-                          width: 60,
-                          height: 60,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                              color: AppTheme.primaryPurple.withValues(
-                                alpha: 0.2,
-                              ),
-                              width: 3,
-                            ),
-                          ),
-                          child: const CircularProgressIndicator(
-                            color: AppTheme.primaryPurple,
-                            strokeWidth: 3,
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        const Text(
-                          'Loading products...',
-                          style: TextStyle(
-                            color: AppTheme.textLightMuted,
-                            fontSize: 14,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-
-              // ─── Empty State ─────────────────────────────────
-              if (!productProvider.isLoading &&
-                  productProvider.allProducts.isEmpty)
-                SliverFillRemaining(
-                  child: Center(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(20),
-                          decoration: BoxDecoration(
-                            gradient: AppTheme.primaryGradient,
-                            shape: BoxShape.circle,
-                          ),
-                          child: const Icon(
-                            Icons.shopping_bag_outlined,
-                            size: 50,
-                            color: Colors.white,
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          productProvider.errorMessage ?? 'No products found',
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(
-                            color: AppTheme.textLightPrimary,
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 40),
-                          child: Text(
-                            'Something went wrong. Please try again.',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              color: AppTheme.textLightMuted,
-                              fontSize: 13,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 20),
-                        ElevatedButton.icon(
-                          onPressed: () => productProvider.fetchProducts(),
-                          icon: const Icon(Icons.refresh_rounded, size: 20),
-                          label: const Text('Try Again'),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-
-              // ─── Products Found ──────────────────────────────
-              if (productProvider.allProducts.isNotEmpty) ...[
-                // ─── Banner Section ────────────────────────────
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(20, 24, 20, 0),
-                    child: Container(
-                      padding: const EdgeInsets.all(20),
-                      decoration: BoxDecoration(
+                    centerTitle: true,
+                    background: Container(
+                      decoration: const BoxDecoration(
                         gradient: AppTheme.heroGradient,
-                        borderRadius: BorderRadius.circular(24),
+                      ),
+                      child: Stack(
+                        children: [
+                          Positioned(
+                            top: -40,
+                            right: -60,
+                            child: Container(
+                              width: 200,
+                              height: 200,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: Colors.white.withValues(alpha: 0.08),
+                              ),
+                            ),
+                          ),
+                          Positioned(
+                            bottom: -60,
+                            left: -40,
+                            child: Container(
+                              width: 160,
+                              height: 160,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: Colors.white.withValues(alpha: 0.05),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  bottom: PreferredSize(
+                    preferredSize: const Size.fromHeight(1),
+                    child: Container(
+                      height: 1,
+                      color: Colors.white.withValues(alpha: 0.2),
+                    ),
+                  ),
+                ),
+
+                // ─── Status Banner ───────────────────────────────
+                if (showStatusBanner)
+                  SliverToBoxAdapter(
+                    child: Container(
+                      width: double.infinity,
+                      margin: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 14,
+                      ),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [
+                            AppTheme.accentOrange.withValues(alpha: 0.9),
+                            AppTheme.neonRed.withValues(alpha: 0.85),
+                          ],
+                          begin: Alignment.centerLeft,
+                          end: Alignment.centerRight,
+                        ),
+                        borderRadius: BorderRadius.circular(16),
                         boxShadow: [
                           BoxShadow(
-                            color: AppTheme.primaryPurple.withValues(
-                              alpha: 0.2,
+                            color: AppTheme.accentOrange.withValues(
+                              alpha: 0.25,
                             ),
-                            blurRadius: 20,
-                            offset: const Offset(0, 8),
+                            blurRadius: 12,
+                            offset: const Offset(0, 6),
                           ),
                         ],
                       ),
                       child: Row(
                         children: [
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Text(
-                                  'Grand Sale!',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.w800,
-                                  ),
-                                ),
-                                const SizedBox(height: 6),
-                                const Text(
-                                  'Up to 70% off on selected items.\nShop now before it\'s too late!',
-                                  style: TextStyle(
-                                    color: Colors.white70,
-                                    fontSize: 12,
-                                    height: 1.5,
-                                  ),
-                                ),
-                                const SizedBox(height: 12),
-                                Container(
-                                  height: 32,
-                                  width: 100,
-                                  decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    borderRadius: BorderRadius.circular(20),
-                                  ),
-                                  child: const Center(
-                                    child: Text(
-                                      'Shop Now',
-                                      style: TextStyle(
-                                        color: AppTheme.primaryPurple,
-                                        fontWeight: FontWeight.w700,
-                                        fontSize: 12,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
+                          Container(
+                            padding: const EdgeInsets.all(6),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withValues(alpha: 0.2),
+                              shape: BoxShape.circle,
+                            ),
+                            child: Icon(
+                              productProvider.isConnected
+                                  ? Icons.warning_rounded
+                                  : Icons.wifi_off_rounded,
+                              color: Colors.white,
+                              size: 18,
                             ),
                           ),
-                          const SizedBox(width: 12),
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(20),
-                            child: Image.network(
-                              'https://fakestoreapi.com/img/81fPKd-2AYL._AC_SL1500_.jpg',
-                              width: 120,
-                              height: 120,
-                              fit: BoxFit.cover,
-                              cacheHeight: 240, // Optimize memory usage
-                              errorBuilder: (_, _, _) =>
-                                  const SizedBox.shrink(),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Text(
+                              productProvider.errorMessage ?? '',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                              ),
                             ),
                           ),
                         ],
                       ),
                     ),
                   ),
-                ),
 
-                // ─── Flash Deals Header ────────────────────────
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(20, 24, 20, 0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 10,
-                                    vertical: 4,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: AppTheme.neonRed.withValues(
-                                      alpha: 0.15,
-                                    ),
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                  child: const Row(
-                                    children: [
-                                      Icon(
-                                        Icons.local_fire_department_rounded,
-                                        color: AppTheme.neonRed,
-                                        size: 14,
-                                      ),
-                                      SizedBox(width: 4),
-                                      Text(
-                                        'Flash',
-                                        style: TextStyle(
-                                          color: AppTheme.neonRed,
-                                          fontWeight: FontWeight.w700,
-                                          fontSize: 11,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
+                // ─── Loading State ───────────────────────────────
+                if (productProvider.isLoading &&
+                    productProvider.allProducts.isEmpty)
+                  SliverFillRemaining(
+                    child: Center(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Container(
+                            width: 60,
+                            height: 60,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: AppTheme.primaryPurple.withValues(
+                                  alpha: 0.2,
                                 ),
-                                const SizedBox(width: 8),
-                                const Text(
-                                  'Deals',
-                                  style: TextStyle(
-                                    color: AppTheme.textLightPrimary,
-                                    fontSize: 22,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ],
+                                width: 3,
+                              ),
                             ),
-                            const SizedBox(height: 4),
-                            Text(
-                              'Exclusive offers just for you',
+                            child: const CircularProgressIndicator(
+                              color: AppTheme.primaryPurple,
+                              strokeWidth: 3,
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          const Text(
+                            'Loading products...',
+                            style: TextStyle(
+                              color: AppTheme.textLightMuted,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+
+                // ─── Empty State ─────────────────────────────────
+                if (!productProvider.isLoading &&
+                    productProvider.allProducts.isEmpty)
+                  SliverFillRemaining(
+                    child: Center(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(20),
+                            decoration: BoxDecoration(
+                              gradient: AppTheme.primaryGradient,
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(
+                              Icons.shopping_bag_outlined,
+                              size: 50,
+                              color: Colors.white,
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            productProvider.errorMessage ?? 'No products found',
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(
+                              color: AppTheme.textLightPrimary,
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 40),
+                            child: Text(
+                              'Something went wrong. Please try again.',
+                              textAlign: TextAlign.center,
                               style: TextStyle(
                                 color: AppTheme.textLightMuted,
-                                fontSize: 12,
+                                fontSize: 13,
                               ),
                             ),
-                          ],
-                        ),
-                        GestureDetector(
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => AllProductsScreen(
-                                  title: 'Flash Deals',
-                                  products: productProvider.allProducts,
-                                ),
-                              ),
-                            );
-                          },
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 14,
-                              vertical: 8,
-                            ),
-                            decoration: BoxDecoration(
+                          ),
+                          const SizedBox(height: 20),
+                          ElevatedButton.icon(
+                            onPressed: () => productProvider.fetchProducts(),
+                            icon: const Icon(Icons.refresh_rounded, size: 20),
+                            label: const Text('Try Again'),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+
+                // ─── Products Found ──────────────────────────────
+                if (productProvider.allProducts.isNotEmpty) ...[
+                  // ─── Banner Section ────────────────────────────
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(20, 24, 20, 0),
+                      child: Container(
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          gradient: AppTheme.heroGradient,
+                          borderRadius: BorderRadius.circular(24),
+                          boxShadow: [
+                            BoxShadow(
                               color: AppTheme.primaryPurple.withValues(
-                                alpha: 0.08,
+                                alpha: 0.2,
                               ),
-                              borderRadius: BorderRadius.circular(12),
+                              blurRadius: 20,
+                              offset: const Offset(0, 8),
                             ),
-                            child: const Text(
-                              'See all →',
-                              style: TextStyle(
-                                color: AppTheme.primaryPurple,
-                                fontSize: 12,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ),
+                          ],
                         ),
-                      ],
-                    ),
-                  ),
-                ),
-
-                // ─── Flash Deals (Horizontal scroll) ───────────
-                SliverToBoxAdapter(
-                  child: SizedBox(
-                    height: 280,
-                    child: ListView.builder(
-                      physics: const BouncingScrollPhysics(),
-                      scrollDirection: Axis.horizontal,
-                      padding: const EdgeInsets.fromLTRB(20, 14, 10, 14),
-                      itemCount: productProvider.allProducts.take(6).length,
-                      itemBuilder: (ctx, i) {
-                        final product = productProvider.allProducts[i];
-                        return Padding(
-                          padding: EdgeInsets.only(right: i < 5 ? 14 : 10),
-                          child: GestureDetector(
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) =>
-                                      ProductDetailScreen(product: product),
-                                ),
-                              );
-                            },
-                            child: ProductCard(product: product),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                ),
-
-                // ─── Trending Header ───────────────────────────
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(20, 8, 20, 0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                        child: Row(
                           children: [
-                            Row(
-                              children: [
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 10,
-                                    vertical: 4,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: AppTheme.neonYellow.withValues(
-                                      alpha: 0.15,
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text(
+                                    'Grand Sale!',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.w800,
                                     ),
-                                    borderRadius: BorderRadius.circular(8),
                                   ),
-                                  child: const Row(
-                                    children: [
-                                      Icon(
-                                        Icons.trending_up_rounded,
-                                        color: AppTheme.neonYellow,
-                                        size: 14,
-                                      ),
-                                      SizedBox(width: 4),
-                                      Text(
-                                        'Trending',
+                                  const SizedBox(height: 6),
+                                  const Text(
+                                    'Up to 70% off on selected items.\nShop now before it\'s too late!',
+                                    style: TextStyle(
+                                      color: Colors.white70,
+                                      fontSize: 12,
+                                      height: 1.5,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 12),
+                                  Container(
+                                    height: 32,
+                                    width: 100,
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
+                                    child: const Center(
+                                      child: Text(
+                                        'Shop Now',
                                         style: TextStyle(
-                                          color: AppTheme.neonYellow,
+                                          color: AppTheme.primaryPurple,
                                           fontWeight: FontWeight.w700,
-                                          fontSize: 11,
+                                          fontSize: 12,
                                         ),
                                       ),
-                                    ],
+                                    ),
                                   ),
-                                ),
-                                const SizedBox(width: 8),
-                                const Text(
-                                  'Trending',
-                                  style: TextStyle(
-                                    color: AppTheme.textLightPrimary,
-                                    fontSize: 22,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
-                            const SizedBox(height: 4),
-                            Text(
-                              'Most popular picks right now',
-                              style: TextStyle(
-                                color: AppTheme.textLightMuted,
-                                fontSize: 12,
+                            const SizedBox(width: 12),
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(20),
+                              child: Image.network(
+                                'https://fakestoreapi.com/img/81fPKd-2AYL._AC_SL1500_.jpg',
+                                width: 120,
+                                height: 120,
+                                fit: BoxFit.cover,
+                                cacheHeight: 240, // Optimize memory usage
+                                errorBuilder: (_, _, _) =>
+                                    const SizedBox.shrink(),
                               ),
                             ),
                           ],
                         ),
-                        GestureDetector(
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => AllProductsScreen(
-                                  title: 'Trending',
-                                  products: productProvider.allProducts.reversed
-                                      .toList(),
-                                ),
-                              ),
-                            );
-                          },
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 14,
-                              vertical: 8,
-                            ),
-                            decoration: BoxDecoration(
-                              color: AppTheme.accentTeal.withValues(
-                                alpha: 0.08,
-                              ),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: const Text(
-                              'See all →',
-                              style: TextStyle(
-                                color: AppTheme.accentTeal,
-                                fontSize: 12,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
+                      ),
                     ),
                   ),
-                ),
 
-                // ─── Trending (Horizontal scroll) ──────────────
-                SliverToBoxAdapter(
-                  child: SizedBox(
-                    height: 280,
-                    child: ListView.builder(
-                      physics: const BouncingScrollPhysics(),
-                      scrollDirection: Axis.horizontal,
-                      padding: const EdgeInsets.fromLTRB(20, 14, 10, 14),
-                      itemCount: productProvider.allProducts
-                          .skip(6)
-                          .take(6)
-                          .length,
-                      itemBuilder: (ctx, i) {
-                        final product = productProvider.allProducts[i + 6];
-                        return Padding(
-                          padding: EdgeInsets.only(right: i < 5 ? 14 : 10),
-                          child: GestureDetector(
+                  // ─── Flash Deals Header ────────────────────────
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(20, 24, 20, 0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 10,
+                                      vertical: 4,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: AppTheme.neonRed.withValues(
+                                        alpha: 0.15,
+                                      ),
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: const Row(
+                                      children: [
+                                        Icon(
+                                          Icons.local_fire_department_rounded,
+                                          color: AppTheme.neonRed,
+                                          size: 14,
+                                        ),
+                                        SizedBox(width: 4),
+                                        Text(
+                                          'Flash',
+                                          style: TextStyle(
+                                            color: AppTheme.neonRed,
+                                            fontWeight: FontWeight.w700,
+                                            fontSize: 11,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  const Text(
+                                    'Deals',
+                                    style: TextStyle(
+                                      color: AppTheme.textLightPrimary,
+                                      fontSize: 22,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                'Exclusive offers just for you',
+                                style: TextStyle(
+                                  color: AppTheme.textLightMuted,
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ],
+                          ),
+                          GestureDetector(
                             onTap: () {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (_) =>
-                                      ProductDetailScreen(product: product),
+                                  builder: (_) => AllProductsScreen(
+                                    title: 'Flash Deals',
+                                    products: productProvider.allProducts,
+                                  ),
                                 ),
                               );
                             },
-                            child: ProductCard(product: product),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 14,
+                                vertical: 8,
+                              ),
+                              decoration: BoxDecoration(
+                                color: AppTheme.primaryPurple.withValues(
+                                  alpha: 0.08,
+                                ),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: const Text(
+                                'See all →',
+                                style: TextStyle(
+                                  color: AppTheme.primaryPurple,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
                           ),
-                        );
-                      },
+                        ],
+                      ),
                     ),
                   ),
-                ),
 
-                // ─── Categories Quick Access ────────────────────
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(20, 24, 20, 16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'Quick Categories',
-                          style: TextStyle(
-                            color: AppTheme.textLightPrimary,
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(height: 12),
-                        Consumer<ProductProvider>(
-                          builder: (ctx, productProvider, _) {
-                            final categories = productProvider.categories;
-                            if (categories.isEmpty) {
-                              return const SizedBox.shrink();
-                            }
-                            return SizedBox(
-                              height: 90,
-                              child: ListView.builder(
-                                physics: const BouncingScrollPhysics(),
-                                scrollDirection: Axis.horizontal,
-                                itemCount: categories.length,
-                                itemBuilder: (ctx, i) {
-                                  final cat = categories[i];
-                                  return Padding(
-                                    padding: const EdgeInsets.only(right: 12),
-                                    child: GestureDetector(
-                                      onTap: () {
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (_) =>
-                                                CategoryProductsScreen(
-                                                  category: cat,
-                                                ),
-                                          ),
-                                        );
-                                      },
-                                      child: Container(
-                                        width: 80,
-                                        decoration: BoxDecoration(
-                                          gradient: AppTheme.primaryGradient,
-                                          borderRadius: BorderRadius.circular(
-                                            18,
-                                          ),
-                                          boxShadow: [
-                                            BoxShadow(
-                                              color: AppTheme.primaryPurple
-                                                  .withValues(alpha: 0.2),
-                                              blurRadius: 10,
-                                              offset: const Offset(0, 4),
-                                            ),
-                                          ],
+                  // ─── Flash Deals (Horizontal scroll) ───────────
+                  SliverToBoxAdapter(
+                    child: SizedBox(
+                      height: 280,
+                      child: ListView.builder(
+                        physics: const BouncingScrollPhysics(),
+                        scrollDirection: Axis.horizontal,
+                        padding: const EdgeInsets.fromLTRB(20, 14, 10, 14),
+                        itemCount: productProvider.allProducts.take(6).length,
+                        itemBuilder: (ctx, i) {
+                          final product = productProvider.allProducts[i];
+                          return Padding(
+                            padding: EdgeInsets.only(right: i < 5 ? 14 : 10),
+                            child: GestureDetector(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) =>
+                                        ProductDetailScreen(product: product),
+                                  ),
+                                );
+                              },
+                              child: ProductCard(product: product),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+
+                  // ─── Trending Header ───────────────────────────
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(20, 8, 20, 0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 10,
+                                      vertical: 4,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: AppTheme.neonYellow.withValues(
+                                        alpha: 0.15,
+                                      ),
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: const Row(
+                                      children: [
+                                        Icon(
+                                          Icons.trending_up_rounded,
+                                          color: AppTheme.neonYellow,
+                                          size: 14,
                                         ),
-                                        child: Column(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          children: [
-                                            Container(
-                                              padding: const EdgeInsets.all(10),
-                                              decoration: BoxDecoration(
-                                                color: Colors.white.withValues(
-                                                  alpha: 0.2,
+                                        SizedBox(width: 4),
+                                        Text(
+                                          'Trending',
+                                          style: TextStyle(
+                                            color: AppTheme.neonYellow,
+                                            fontWeight: FontWeight.w700,
+                                            fontSize: 11,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  const Text(
+                                    'Trending',
+                                    style: TextStyle(
+                                      color: AppTheme.textLightPrimary,
+                                      fontSize: 22,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                'Most popular picks right now',
+                                style: TextStyle(
+                                  color: AppTheme.textLightMuted,
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ],
+                          ),
+                          GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => AllProductsScreen(
+                                    title: 'Trending',
+                                    products: productProvider
+                                        .allProducts
+                                        .reversed
+                                        .toList(),
+                                  ),
+                                ),
+                              );
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 14,
+                                vertical: 8,
+                              ),
+                              decoration: BoxDecoration(
+                                color: AppTheme.accentTeal.withValues(
+                                  alpha: 0.08,
+                                ),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: const Text(
+                                'See all →',
+                                style: TextStyle(
+                                  color: AppTheme.accentTeal,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+
+                  // ─── Trending (Horizontal scroll) ──────────────
+                  SliverToBoxAdapter(
+                    child: SizedBox(
+                      height: 280,
+                      child: ListView.builder(
+                        physics: const BouncingScrollPhysics(),
+                        scrollDirection: Axis.horizontal,
+                        padding: const EdgeInsets.fromLTRB(20, 14, 10, 14),
+                        itemCount: productProvider.allProducts
+                            .skip(6)
+                            .take(6)
+                            .length,
+                        itemBuilder: (ctx, i) {
+                          final product = productProvider.allProducts[i + 6];
+                          return Padding(
+                            padding: EdgeInsets.only(right: i < 5 ? 14 : 10),
+                            child: GestureDetector(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) =>
+                                        ProductDetailScreen(product: product),
+                                  ),
+                                );
+                              },
+                              child: ProductCard(product: product),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+
+                  // ─── Categories Quick Access ────────────────────
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(20, 24, 20, 16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Quick Categories',
+                            style: TextStyle(
+                              color: AppTheme.textLightPrimary,
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          Consumer<ProductProvider>(
+                            builder: (ctx, productProvider, _) {
+                              final categories = productProvider.categories;
+                              if (categories.isEmpty) {
+                                return const SizedBox.shrink();
+                              }
+                              return SizedBox(
+                                height: 90,
+                                child: ListView.builder(
+                                  physics: const BouncingScrollPhysics(),
+                                  scrollDirection: Axis.horizontal,
+                                  itemCount: categories.length,
+                                  itemBuilder: (ctx, i) {
+                                    final cat = categories[i];
+                                    return Padding(
+                                      padding: const EdgeInsets.only(right: 12),
+                                      child: GestureDetector(
+                                        onTap: () {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (_) =>
+                                                  CategoryProductsScreen(
+                                                    category: cat,
+                                                  ),
+                                            ),
+                                          );
+                                        },
+                                        child: Container(
+                                          width: 80,
+                                          decoration: BoxDecoration(
+                                            gradient: AppTheme.primaryGradient,
+                                            borderRadius: BorderRadius.circular(
+                                              18,
+                                            ),
+                                            boxShadow: [
+                                              BoxShadow(
+                                                color: AppTheme.primaryPurple
+                                                    .withValues(alpha: 0.2),
+                                                blurRadius: 10,
+                                                offset: const Offset(0, 4),
+                                              ),
+                                            ],
+                                          ),
+                                          child: Column(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: [
+                                              Container(
+                                                padding: const EdgeInsets.all(
+                                                  10,
                                                 ),
-                                                shape: BoxShape.circle,
+                                                decoration: BoxDecoration(
+                                                  color: Colors.white
+                                                      .withValues(alpha: 0.2),
+                                                  shape: BoxShape.circle,
+                                                ),
+                                                child: Icon(
+                                                  _categoryEmoji(cat.id),
+                                                  size: 22,
+                                                  color: Colors.white,
+                                                ),
                                               ),
-                                              child: Icon(
-                                                _categoryEmoji(cat.id),
-                                                size: 22,
-                                                color: Colors.white,
+                                              const SizedBox(height: 6),
+                                              Text(
+                                                cat.name,
+                                                style: const TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 10,
+                                                  fontWeight: FontWeight.w600,
+                                                ),
+                                                maxLines: 1,
+                                                overflow: TextOverflow.ellipsis,
                                               ),
-                                            ),
-                                            const SizedBox(height: 6),
-                                            Text(
-                                              cat.name,
-                                              style: const TextStyle(
-                                                color: Colors.white,
-                                                fontSize: 10,
-                                                fontWeight: FontWeight.w600,
-                                              ),
-                                              maxLines: 1,
-                                              overflow: TextOverflow.ellipsis,
-                                            ),
-                                          ],
+                                            ],
+                                          ),
                                         ),
                                       ),
-                                    ),
-                                  );
-                                },
-                              ),
-                            );
-                          },
-                        ),
-                      ],
+                                    );
+                                  },
+                                ),
+                              );
+                            },
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                ),
 
-                const SliverToBoxAdapter(child: SizedBox(height: 100)),
+                  const SliverToBoxAdapter(child: SizedBox(height: 100)),
+                ],
               ],
-            ],
+            ),
           );
         },
       ),
