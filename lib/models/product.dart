@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class Product {
   final String id;
   final String name;
@@ -60,4 +62,37 @@ class Product {
       isFavorite: json['isFavorite'] as bool? ?? false,
     );
   }
+
+  /// Converts product to a map for saving to Cloud Firestore
+  Map<String, dynamic> toMap() {
+    return {
+      'name': name,
+      'categoryId': categoryId,
+      'price': price,
+      'oldPrice': oldPrice,
+      'discountPercentage': discountPercentage,
+      'timeLeft': timeLeft,
+      'imageUrl': imageUrl,
+      'description': description,
+      'rating': rating,
+    };
+  }
+
+  /// Creates Product from a Cloud Firestore DocumentSnapshot
+  factory Product.fromDoc(DocumentSnapshot doc) {
+    final data = doc.data() as Map<String, dynamic>? ?? {};
+    return Product(
+      id: doc.id,
+      name: data['name'] ?? data['title'] ?? 'Unknown Product',
+      categoryId: data['categoryId'] ?? data['category'] ?? 'others',
+      price: (data['price'] as num?)?.toDouble() ?? 0.0,
+      oldPrice: data['oldPrice'] != null ? (data['oldPrice'] as num).toDouble() : null,
+      discountPercentage: data['discountPercentage'] as int?,
+      timeLeft: data['timeLeft'] as String?,
+      imageUrl: data['imageUrl'] ?? data['image'] ?? '',
+      description: data['description'] ?? '',
+      rating: (data['rating'] as num?)?.toDouble() ?? 4.5,
+    );
+  }
 }
+

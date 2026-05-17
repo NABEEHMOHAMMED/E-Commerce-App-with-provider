@@ -2,12 +2,42 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../theme/app_theme.dart';
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
 
   @override
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
+  User? _user;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUser();
+  }
+
+  Future<void> _loadUser() async {
+    final currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser != null) {
+      setState(() => _user = currentUser);
+      try {
+        await currentUser.reload();
+        if (mounted) {
+          setState(() {
+            _user = FirebaseAuth.instance.currentUser;
+          });
+        }
+      } catch (e) {
+        debugPrint('Error reloading user profile: $e');
+      }
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final user = FirebaseAuth.instance.currentUser;
+    final user = _user;
     return Scaffold(
       backgroundColor: AppTheme.bgLight,
       body: CustomScrollView(
@@ -55,7 +85,7 @@ class ProfileScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 14),
                   Text(
-                    user?.displayName?.toUpperCase() ?? 'NABEEH MOHAMMED',
+                    user?.displayName?.toUpperCase() ?? 'GUEST USER',
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 22,
@@ -65,7 +95,7 @@ class ProfileScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 6),
                   Text(
-                    user?.email ?? 'nabeehmohammed@email.com',
+                    user?.email ?? 'guest@shopwave.com',
                     style: TextStyle(
                       color: Colors.white.withValues(alpha: 0.8),
                       fontSize: 13,

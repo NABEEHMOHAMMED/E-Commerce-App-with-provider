@@ -1,9 +1,11 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/product.dart';
 import '../models/category.dart';
 import '../services/api_service.dart';
@@ -21,13 +23,16 @@ class ProductProvider extends ChangeNotifier {
   bool _isConnected = true;
   bool get isConnected => _isConnected;
 
-  // ─── Products List (fetched from API or loaded from cache) ──────────
+  // ─── Products List (fetched from Firestore in real-time) ────────────
   List<Product> _allProducts = [];
   List<Product> get allProducts => _allProducts;
 
   // ─── Categories ─────────────────────────────────────────────────────
   List<Category> _categories = [];
   List<Category> get categories => _categories;
+
+  // ─── Firestore subscription ─────────────────────────────────────────
+  StreamSubscription<QuerySnapshot>? _firestoreSubscription;
 
   // ─── Category icon mapping ─────────────────────────────────────────
   static const Map<String, String> _categoryIcons = {
@@ -52,137 +57,84 @@ class ProductProvider extends ChangeNotifier {
     Future.microtask(() => _initializeData());
   }
 
+  @override
+  void dispose() {
+    _firestoreSubscription?.cancel();
+    super.dispose();
+  }
+
   Future<void> _initializeData() async {
     _isLoading = true;
     // Don't notify yet to avoid empty screen flicker
 
     try {
-      await _loadFromDisk(); // Load cached data first
-      _addMockProductsNoNotify(); // Add mock data without notifying
-      _buildCategoriesFromProducts(); // Build categories
+      // 1. Load disk cache immediately as fallback so screen isn't empty
+      await _loadFromDisk(); 
+      _addMockProductsNoNotify(); 
+      _buildCategoriesFromProducts();
+      notifyListeners();
 
+      // 2. Determine connection status
       await _initConnectivity();
+
+      // 3. Connect real-time stream listener to Cloud Firestore
+      _initFirestoreStream();
     } catch (e) {
       debugPrint('Error in ProductProvider init: $e');
-    } finally {
       _isLoading = false;
-      notifyListeners(); // Single notification after everything is ready
-
-      // Attempt background update from API if online
-      if (_isConnected) {
-        fetchProducts(showOfflineMessage: false);
-      }
+      notifyListeners();
     }
   }
 
-  void _addMockProductsNoNotify() {
-    final mockData = [
-      Product(
-        id: 'm1',
-        name: 'iPhone 15 Pro Max',
-        categoryId: 'smartphones',
-        price: 1199.99,
-        oldPrice: 1299.99,
-        discountPercentage: 8,
-        imageUrl:
-            'https://images.unsplash.com/photo-1696446701796-da61225697cc?w=500',
-        description: 'Latest Apple iPhone with Titanium design.',
-        rating: 4.9,
-      ),
-      Product(
-        id: 'm2',
-        name: 'Samsung Galaxy S24 Ultra',
-        categoryId: 'smartphones',
-        price: 1099.99,
-        imageUrl:
-            'https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?w=500',
-        description: 'Advanced AI smartphone with S-Pen.',
-        rating: 4.8,
-      ),
-      Product(
-        id: 'm3',
-        name: 'Rolex Submariner',
-        categoryId: 'watches',
-        price: 8500.00,
-        imageUrl:
-            'https://images.unsplash.com/photo-1523170335258-f5ed11844a49?w=500',
-        description: 'Classic luxury diver watch.',
-        rating: 5.0,
-      ),
-      Product(
-        id: 'm4',
-        name: 'Apple Watch Ultra 2',
-        categoryId: 'watches',
-        price: 799.00,
-        imageUrl:
-            'https://images.unsplash.com/photo-1434494878577-86c23bcb06b9?w=500',
-        description: 'The most rugged and capable Apple Watch.',
-        rating: 4.7,
-      ),
-      Product(
-        id: 'm5',
-        name: 'Air Jordan 1 Retro',
-        categoryId: 'shoes',
-        price: 180.00,
-        oldPrice: 220.00,
-        discountPercentage: 18,
-        imageUrl:
-            'https://images.unsplash.com/photo-1584735175315-9d5df23860e6?w=500',
-        description: 'Iconic basketball sneakers.',
-        rating: 4.9,
-      ),
-      Product(
-        id: 'm6',
-        name: 'Nike Air Max 270',
-        categoryId: 'shoes',
-        price: 150.00,
-        imageUrl:
-            'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500',
-        description: 'Comfortable lifestyle sneakers.',
-        rating: 4.6,
-      ),
-      Product(
-        id: 'm7',
-        name: 'Modern Velvet Sofa',
-        categoryId: 'furniture',
-        price: 899.00,
-        imageUrl:
-            'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=500',
-        description: 'Luxury velvet sofa for your living room.',
-        rating: 4.5,
-      ),
-      Product(
-        id: 'm8',
-        name: 'Ergonomic Office Chair',
-        categoryId: 'furniture',
-        price: 299.00,
-        imageUrl:
-            'https://images.unsplash.com/photo-1505797149-43b0069ec26b?w=500',
-        description: 'Work in comfort with this ergonomic chair.',
-        rating: 4.7,
-      ),
-      Product(
-        id: 'm9',
-        name: 'Sony PlayStation 5',
-        categoryId: 'gaming',
-        price: 499.00,
-        imageUrl:
-            'https://images.unsplash.com/photo-1606813907291-d86efa9b94db?w=500',
-        description: 'Next-gen gaming console.',
-        rating: 4.9,
-      ),
-      Product(
-        id: 'm10',
-        name: 'Gaming Mechanical Keyboard',
-        categoryId: 'gaming',
-        price: 120.00,
-        imageUrl:
-            'https://images.unsplash.com/photo-1511467687858-23d96c32e4ae?w=500',
-        description: 'RGB Backlit mechanical keyboard.',
-        rating: 4.5,
-      ),
-    ];
+  // ─── Initialize Cloud Firestore Real-Time Listener ───────────────────
+  void _initFirestoreStream() {
+    _firestoreSubscription?.cancel();
 
+    _firestoreSubscription = FirebaseFirestore.instance
+        .collection('products')
+        .snapshots()
+        .listen((snapshot) {
+      if (snapshot.docs.isNotEmpty) {
+        _allProducts = snapshot.docs.map((doc) => Product.fromDoc(doc)).toList();
+        _buildCategoriesFromProducts();
+        _isLoading = false;
+        _errorMessage = null;
+        notifyListeners();
+
+        // Backup to local disk cache for instant startup next time
+        _saveToDisk();
+      } else {
+        // If Firestore starts out empty, seed it automatically with mock products!
+        _seedMockProductsToFirestore();
+      }
+    }, onError: (error) {
+      debugPrint('Firestore Listener Error: $error');
+      // If Firestore connection fails, we retain local cached data and notify user
+      _errorMessage = 'Cloud database offline. Showing offline cache.';
+      _isLoading = false;
+      notifyListeners();
+    });
+  }
+
+  // ─── Auto-seed Mock Products to Cloud Firestore ──────────────────────
+  Future<void> _seedMockProductsToFirestore() async {
+    debugPrint(' Firestore products collection is empty. Auto-seeding mock products...');
+    final collection = FirebaseFirestore.instance.collection('products');
+
+    try {
+      final mockData = _getMockProductsList();
+      for (var product in mockData) {
+        await collection.doc(product.id).set(product.toMap());
+      }
+      debugPrint(' Mock products seeded successfully to Firestore!');
+    } catch (e) {
+      debugPrint('Error seeding mock products: $e');
+    }
+  }
+
+  // ─── Add Mock Products (Local fallback when offline & cache empty) ───
+  void _addMockProductsNoNotify() {
+    final mockData = _getMockProductsList();
     for (var product in mockData) {
       if (!_allProducts.any((p) => p.id == product.id)) {
         _allProducts.add(product);
@@ -194,60 +146,47 @@ class ProductProvider extends ChangeNotifier {
   Future<void> _initConnectivity() async {
     try {
       final dynamic result = await Connectivity().checkConnectivity();
-      final List<ConnectivityResult> results = result is List
-          ? List<ConnectivityResult>.from(result)
-          : [result as ConnectivityResult];
+      List<ConnectivityResult> results = [];
+      if (result is List) {
+        results = result.map((e) => e as ConnectivityResult).toList();
+      } else if (result is ConnectivityResult) {
+        results = [result];
+      }
       _isConnected = !results.contains(ConnectivityResult.none);
     } catch (e) {
-      _isConnected = true; // افتراض الاتصال إذا فشل التحقق
+      _isConnected = true; // Assume connected if check fails
     }
   }
 
-  // ─── Fetch Products from API or Load from Cache ─────────────────────
-  /// Fetches products from FakeStore API if online.
-  /// If offline or API fails, loads products from local cache.
+  // ─── Pull-to-refresh: Sync External API products into Firestore ──────
   Future<void> fetchProducts({bool showOfflineMessage = true}) async {
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
 
     try {
-      // Check connectivity first
-      final dynamic result = await Connectivity().checkConnectivity();
-      final List<ConnectivityResult> results = result is List
-          ? List<ConnectivityResult>.from(result)
-          : [result as ConnectivityResult];
-      _isConnected = !results.contains(ConnectivityResult.none);
+      await _initConnectivity();
 
       if (_isConnected) {
-        // Online: fetch from API and cache the response
+        // Online: Fetch latest products from API and save them to Cloud Firestore
         final fetchedProducts = await ApiService.fetchProducts();
         if (fetchedProducts.isNotEmpty) {
-          _allProducts = fetchedProducts;
-          // Note: Mock data is replaced by API data when online
-          await _saveToDisk();
-          _buildCategoriesFromProducts();
+          final collection = FirebaseFirestore.instance.collection('products');
+          for (var product in fetchedProducts) {
+            await collection.doc(product.id).set(product.toMap());
+          }
+          debugPrint('Synced API products to Cloud Firestore.');
         }
-        debugPrint(
-          ' Products fetched from API and cached. Count: ${_allProducts.length}',
-        );
       } else {
-        // Offline: load from cache
-        await _loadFromDisk();
         if (showOfflineMessage) {
           _errorMessage = 'Offline mode: Showing cached data';
         }
-        debugPrint(
-          ' Offline mode: loaded from cache. Count: ${_allProducts.length}',
-        );
       }
     } catch (e) {
-      debugPrint(' API Error: $e');
-      await _loadFromDisk();
+      debugPrint(' Error refreshing Cloud Database: $e');
       if (showOfflineMessage) {
-        _errorMessage = 'Offline mode: Showing cached data';
+        _errorMessage = 'Could not sync with Cloud. Showing cached data.';
       }
-      debugPrint('📱 Fallback to cache. Count: ${_allProducts.length}');
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -310,18 +249,14 @@ class ProductProvider extends ChangeNotifier {
           debugPrint(
             'Products loaded from cache. Count: ${_allProducts.length}',
           );
-        } else {
-          // _errorMessage = 'No cached data available. Showing default items.';
-          // debugPrint('No cache file found.');
         }
       }
 
-      // Always ensure mock products are present
+      // Always ensure default mock products are loaded if list empty
       _addMockProductsNoNotify();
       _buildCategoriesFromProducts();
     } catch (e) {
       debugPrint('Error loading products from cache: $e');
-      // _errorMessage = 'Failed to load cached data.';
       _addMockProductsNoNotify();
       _buildCategoriesFromProducts();
     }
@@ -345,7 +280,7 @@ class ProductProvider extends ChangeNotifier {
       );
     }).toList();
 
-    // إضافة فئات إضافية لملء التطبيق (Mock Categories)
+    // Add extra default categories for a complete looking catalog
     final extraCategories = [
       'smartphones',
       'watches',
@@ -385,8 +320,7 @@ class ProductProvider extends ChangeNotifier {
         .join(' ');
   }
 
-  // ─── Existing Methods ────────────────────────────────────────────────
-
+  // ─── Helper Methods ──────────────────────────────────────────────────
   List<Product> getProductsByCategory(String categoryId) {
     return _allProducts
         .where((product) => product.categoryId == categoryId)
@@ -404,5 +338,105 @@ class ProductProvider extends ChangeNotifier {
   void toggleFavorite(Product product) {
     product.isFavorite = !product.isFavorite;
     notifyListeners();
+  }
+
+  // ─── Static Mock Products Data List ──────────────────────────────────
+  List<Product> _getMockProductsList() {
+    return [
+      Product(
+        id: 'm1',
+        name: 'iPhone 15 Pro Max',
+        categoryId: 'smartphones',
+        price: 1199.99,
+        oldPrice: 1299.99,
+        discountPercentage: 8,
+        imageUrl: 'https://images.unsplash.com/photo-1696446701796-da61225697cc?w=500',
+        description: 'Latest Apple iPhone with Titanium design.',
+        rating: 4.9,
+      ),
+      Product(
+        id: 'm2',
+        name: 'Samsung Galaxy S24 Ultra',
+        categoryId: 'smartphones',
+        price: 1099.99,
+        imageUrl: 'https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?w=500',
+        description: 'Advanced AI smartphone with S-Pen.',
+        rating: 4.8,
+      ),
+      Product(
+        id: 'm3',
+        name: 'Rolex Submariner',
+        categoryId: 'watches',
+        price: 8500.00,
+        imageUrl: 'https://images.unsplash.com/photo-1523170335258-f5ed11844a49?w=500',
+        description: 'Classic luxury diver watch.',
+        rating: 5.0,
+      ),
+      Product(
+        id: 'm4',
+        name: 'Apple Watch Ultra 2',
+        categoryId: 'watches',
+        price: 799.00,
+        imageUrl: 'https://images.unsplash.com/photo-1434494878577-86c23bcb06b9?w=500',
+        description: 'The most rugged and capable Apple Watch.',
+        rating: 4.7,
+      ),
+      Product(
+        id: 'm5',
+        name: 'Air Jordan 1 Retro',
+        categoryId: 'shoes',
+        price: 180.00,
+        oldPrice: 220.00,
+        discountPercentage: 18,
+        imageUrl: 'https://images.unsplash.com/photo-1584735175315-9d5df23860e6?w=500',
+        description: 'Iconic basketball sneakers.',
+        rating: 4.9,
+      ),
+      Product(
+        id: 'm6',
+        name: 'Nike Air Max 270',
+        categoryId: 'shoes',
+        price: 150.00,
+        imageUrl: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500',
+        description: 'Comfortable lifestyle sneakers.',
+        rating: 4.6,
+      ),
+      Product(
+        id: 'm7',
+        name: 'Modern Velvet Sofa',
+        categoryId: 'furniture',
+        price: 899.00,
+        imageUrl: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=500',
+        description: 'Luxury velvet sofa for your living room.',
+        rating: 4.5,
+      ),
+      Product(
+        id: 'm8',
+        name: 'Ergonomic Office Chair',
+        categoryId: 'furniture',
+        price: 299.00,
+        imageUrl: 'https://images.unsplash.com/photo-1505797149-43b0069ec26b?w=500',
+        description: 'Work in comfort with this ergonomic chair.',
+        rating: 4.7,
+      ),
+      Product(
+        id: 'm9',
+        name: 'Sony PlayStation 5',
+        categoryId: 'gaming',
+        price: 499.00,
+        imageUrl: 'https://images.unsplash.com/photo-1606813907291-d86efa9b94db?w=500',
+        description: 'Next-gen gaming console.',
+        rating: 4.9,
+      ),
+      Product(
+        id: 'm10',
+        name: 'Gaming Mechanical Keyboard',
+        categoryId: 'gaming',
+        price: 120.00,
+        imageUrl: 'https://images.unsplash.com/photo-1511467687858-23d96c32e4ae?w=500',
+        description: 'RGB Backlit mechanical keyboard.',
+        rating: 4.5,
+      ),
+    ];
   }
 }
