@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../theme/app_theme.dart';
 
 class ProfileScreen extends StatelessWidget {
@@ -6,6 +7,7 @@ class ProfileScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final user = FirebaseAuth.instance.currentUser;
     return Scaffold(
       backgroundColor: AppTheme.bgLight,
       body: CustomScrollView(
@@ -52,23 +54,21 @@ class ProfileScreen extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 14),
-                  const Text(
-                    'NABEEH MOHAMMED',
-                    style: TextStyle(
+                  Text(
+                    user?.displayName?.toUpperCase() ?? 'NABEEH MOHAMMED',
+                    style: const TextStyle(
                       color: Colors.white,
                       fontSize: 22,
                       fontWeight: FontWeight.bold,
-                      
                       letterSpacing: 1.5,
                     ),
                   ),
                   const SizedBox(height: 6),
                   Text(
-                    'nabeehmohammed@email.com',
+                    user?.email ?? 'nabeehmohammed@email.com',
                     style: TextStyle(
                       color: Colors.white.withValues(alpha: 0.8),
                       fontSize: 13,
-                      
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -161,7 +161,28 @@ class ProfileScreen extends StatelessWidget {
                     'Log Out',
                     color: AppTheme.neonRed,
                     isDestructive: true,
-                    onTap: () {},
+                    onTap: () {
+                      showDialog(
+                        context: context,
+                        builder: (ctx) => AlertDialog(
+                          title: const Text('Log Out'),
+                          content: const Text('Are you sure you want to log out of ShopWave?'),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.of(ctx).pop(),
+                              child: const Text('Cancel', style: TextStyle(color: AppTheme.textLightSecondary)),
+                            ),
+                            TextButton(
+                              onPressed: () async {
+                                Navigator.of(ctx).pop();
+                                await FirebaseAuth.instance.signOut();
+                              },
+                              child: const Text('Log Out', style: TextStyle(color: AppTheme.neonRed)),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
                   ),
                   const SizedBox(height: 20),
                 ],
