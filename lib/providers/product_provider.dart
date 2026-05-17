@@ -69,8 +69,8 @@ class ProductProvider extends ChangeNotifier {
 
     try {
       // 1. Load disk cache immediately as fallback so screen isn't empty
-      await _loadFromDisk(); 
-      _addMockProductsNoNotify(); 
+      await _loadFromDisk();
+      _addMockProductsNoNotify();
       _buildCategoriesFromProducts();
       notifyListeners();
 
@@ -93,32 +93,39 @@ class ProductProvider extends ChangeNotifier {
     _firestoreSubscription = FirebaseFirestore.instance
         .collection('products')
         .snapshots()
-        .listen((snapshot) {
-      if (snapshot.docs.isNotEmpty) {
-        _allProducts = snapshot.docs.map((doc) => Product.fromDoc(doc)).toList();
-        _buildCategoriesFromProducts();
-        _isLoading = false;
-        _errorMessage = null;
-        notifyListeners();
+        .listen(
+          (snapshot) {
+            if (snapshot.docs.isNotEmpty) {
+              _allProducts = snapshot.docs
+                  .map((doc) => Product.fromDoc(doc))
+                  .toList();
+              _buildCategoriesFromProducts();
+              _isLoading = false;
+              _errorMessage = null;
+              notifyListeners();
 
-        // Backup to local disk cache for instant startup next time
-        _saveToDisk();
-      } else {
-        // If Firestore starts out empty, seed it automatically with mock products!
-        _seedMockProductsToFirestore();
-      }
-    }, onError: (error) {
-      debugPrint('Firestore Listener Error: $error');
-      // If Firestore connection fails, we retain local cached data and notify user
-      _errorMessage = 'Cloud database offline. Showing offline cache.';
-      _isLoading = false;
-      notifyListeners();
-    });
+              // Backup to local disk cache for instant startup next time
+              _saveToDisk();
+            } else {
+              // If Firestore starts out empty, seed it automatically with mock products!
+              _seedMockProductsToFirestore();
+            }
+          },
+          onError: (error) {
+            debugPrint('Firestore Listener Error: $error');
+            // If Firestore connection fails, we retain local cached data and notify user
+            _errorMessage = 'Cloud database offline. Showing offline cache.';
+            _isLoading = false;
+            notifyListeners();
+          },
+        );
   }
 
   // ─── Auto-seed Mock Products to Cloud Firestore ──────────────────────
   Future<void> _seedMockProductsToFirestore() async {
-    debugPrint(' Firestore products collection is empty. Auto-seeding mock products...');
+    debugPrint(
+      ' Firestore products collection is empty. Auto-seeding mock products...',
+    );
     final collection = FirebaseFirestore.instance.collection('products');
 
     try {
@@ -168,15 +175,24 @@ class ProductProvider extends ChangeNotifier {
       await _initConnectivity();
 
       if (_isConnected) {
-        // Online: Fetch latest products from API and save them to Cloud Firestore
+        final collection = FirebaseFirestore.instance.collection('products');
+
+        // 1. Sync all mock products (m1 to m10) to Firestore to ensure full upload
+        final mockData = _getMockProductsList();
+        for (var product in mockData) {
+          await collection.doc(product.id).set(product.toMap());
+        }
+
+        // 2. Online: Fetch latest products from API and save them to Cloud Firestore
         final fetchedProducts = await ApiService.fetchProducts();
         if (fetchedProducts.isNotEmpty) {
-          final collection = FirebaseFirestore.instance.collection('products');
           for (var product in fetchedProducts) {
             await collection.doc(product.id).set(product.toMap());
           }
-          debugPrint('Synced API products to Cloud Firestore.');
         }
+        debugPrint(
+          'Successfully synced both Mock and API products to Cloud Firestore!',
+        );
       } else {
         if (showOfflineMessage) {
           _errorMessage = 'Offline mode: Showing cached data';
@@ -350,7 +366,8 @@ class ProductProvider extends ChangeNotifier {
         price: 1199.99,
         oldPrice: 1299.99,
         discountPercentage: 8,
-        imageUrl: 'https://images.unsplash.com/photo-1696446701796-da61225697cc?w=500',
+        imageUrl:
+            'https://images.unsplash.com/photo-1696446701796-da61225697cc?w=500',
         description: 'Latest Apple iPhone with Titanium design.',
         rating: 4.9,
       ),
@@ -359,7 +376,8 @@ class ProductProvider extends ChangeNotifier {
         name: 'Samsung Galaxy S24 Ultra',
         categoryId: 'smartphones',
         price: 1099.99,
-        imageUrl: 'https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?w=500',
+        imageUrl:
+            'https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?w=500',
         description: 'Advanced AI smartphone with S-Pen.',
         rating: 4.8,
       ),
@@ -368,7 +386,8 @@ class ProductProvider extends ChangeNotifier {
         name: 'Rolex Submariner',
         categoryId: 'watches',
         price: 8500.00,
-        imageUrl: 'https://images.unsplash.com/photo-1523170335258-f5ed11844a49?w=500',
+        imageUrl:
+            'https://images.unsplash.com/photo-1523170335258-f5ed11844a49?w=500',
         description: 'Classic luxury diver watch.',
         rating: 5.0,
       ),
@@ -377,7 +396,8 @@ class ProductProvider extends ChangeNotifier {
         name: 'Apple Watch Ultra 2',
         categoryId: 'watches',
         price: 799.00,
-        imageUrl: 'https://images.unsplash.com/photo-1434494878577-86c23bcb06b9?w=500',
+        imageUrl:
+            'https://images.unsplash.com/photo-1434494878577-86c23bcb06b9?w=500',
         description: 'The most rugged and capable Apple Watch.',
         rating: 4.7,
       ),
@@ -388,7 +408,8 @@ class ProductProvider extends ChangeNotifier {
         price: 180.00,
         oldPrice: 220.00,
         discountPercentage: 18,
-        imageUrl: 'https://images.unsplash.com/photo-1584735175315-9d5df23860e6?w=500',
+        imageUrl:
+            'https://images.unsplash.com/photo-1584735175315-9d5df23860e6?w=500',
         description: 'Iconic basketball sneakers.',
         rating: 4.9,
       ),
@@ -397,7 +418,8 @@ class ProductProvider extends ChangeNotifier {
         name: 'Nike Air Max 270',
         categoryId: 'shoes',
         price: 150.00,
-        imageUrl: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500',
+        imageUrl:
+            'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500',
         description: 'Comfortable lifestyle sneakers.',
         rating: 4.6,
       ),
@@ -406,7 +428,8 @@ class ProductProvider extends ChangeNotifier {
         name: 'Modern Velvet Sofa',
         categoryId: 'furniture',
         price: 899.00,
-        imageUrl: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=500',
+        imageUrl:
+            'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=500',
         description: 'Luxury velvet sofa for your living room.',
         rating: 4.5,
       ),
@@ -415,7 +438,8 @@ class ProductProvider extends ChangeNotifier {
         name: 'Ergonomic Office Chair',
         categoryId: 'furniture',
         price: 299.00,
-        imageUrl: 'https://images.unsplash.com/photo-1505797149-43b0069ec26b?w=500',
+        imageUrl:
+            'https://images.unsplash.com/photo-1505797149-43b0069ec26b?w=500',
         description: 'Work in comfort with this ergonomic chair.',
         rating: 4.7,
       ),
@@ -424,7 +448,8 @@ class ProductProvider extends ChangeNotifier {
         name: 'Sony PlayStation 5',
         categoryId: 'gaming',
         price: 499.00,
-        imageUrl: 'https://images.unsplash.com/photo-1606813907291-d86efa9b94db?w=500',
+        imageUrl:
+            'https://images.unsplash.com/photo-1606813907291-d86efa9b94db?w=500',
         description: 'Next-gen gaming console.',
         rating: 4.9,
       ),
@@ -433,7 +458,8 @@ class ProductProvider extends ChangeNotifier {
         name: 'Gaming Mechanical Keyboard',
         categoryId: 'gaming',
         price: 120.00,
-        imageUrl: 'https://images.unsplash.com/photo-1511467687858-23d96c32e4ae?w=500',
+        imageUrl:
+            'https://images.unsplash.com/photo-1511467687858-23d96c32e4ae?w=500',
         description: 'RGB Backlit mechanical keyboard.',
         rating: 4.5,
       ),
