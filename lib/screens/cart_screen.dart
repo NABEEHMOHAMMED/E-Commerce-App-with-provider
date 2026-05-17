@@ -207,16 +207,26 @@ Padding(
                           const Icon(Icons.local_offer_rounded,
                               color: AppTheme.accentOrange, size: 18),
                           const SizedBox(width: 10),
-                          const Expanded(
+                          Expanded(
                             child: TextField(
                               decoration: InputDecoration(
                                 hintText: 'Apply coupon code',
-                                hintStyle: TextStyle(
+                                hintStyle: const TextStyle(
                                   color: AppTheme.textLightMuted,
                                   fontSize: 13,
-                                  
                                 ),
                                 border: InputBorder.none,
+                                enabledBorder: InputBorder.none,
+                                focusedBorder: InputBorder.none,
+                                filled: false,
+                                fillColor: Colors.transparent,
+                                isDense: true,
+                                contentPadding: EdgeInsets.zero,
+                              ),
+                              style: const TextStyle(
+                                color: AppTheme.textLightPrimary,
+                                fontSize: 13,
+                                fontWeight: FontWeight.w500,
                               ),
                             ),
                           ),
