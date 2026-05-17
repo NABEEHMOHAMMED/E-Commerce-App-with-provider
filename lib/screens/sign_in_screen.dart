@@ -192,6 +192,7 @@ class _SignInScreenState extends State<SignInScreen> {
                           child: TextFormField(
                             controller: _emailController,
                             keyboardType: TextInputType.emailAddress,
+                            style: const TextStyle(color: AppTheme.textLightPrimary),
                             decoration: InputDecoration(
                               prefixIcon: const Icon(Icons.email_outlined, color: AppTheme.primaryPurple),
                               hintText: 'Email Address',
@@ -230,6 +231,7 @@ class _SignInScreenState extends State<SignInScreen> {
                           child: TextFormField(
                             controller: _passwordController,
                             obscureText: _obscurePassword,
+                            style: const TextStyle(color: AppTheme.textLightPrimary),
                             decoration: InputDecoration(
                               prefixIcon: const Icon(Icons.lock_outline_rounded, color: AppTheme.primaryPurple),
                               hintText: 'Password',

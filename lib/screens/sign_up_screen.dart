@@ -182,6 +182,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           child: TextFormField(
                             controller: _nameController,
                             keyboardType: TextInputType.name,
+                            style: const TextStyle(color: AppTheme.textLightPrimary),
                             decoration: InputDecoration(
                               prefixIcon: const Icon(Icons.person_outline_rounded, color: AppTheme.primaryPurple),
                               hintText: 'Full Name',
@@ -219,6 +220,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           child: TextFormField(
                             controller: _emailController,
                             keyboardType: TextInputType.emailAddress,
+                            style: const TextStyle(color: AppTheme.textLightPrimary),
                             decoration: InputDecoration(
                               prefixIcon: const Icon(Icons.email_outlined, color: AppTheme.primaryPurple),
                               hintText: 'Email Address',
@@ -257,6 +259,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           child: TextFormField(
                             controller: _passwordController,
                             obscureText: _obscurePassword,
+                            style: const TextStyle(color: AppTheme.textLightPrimary),
                             decoration: InputDecoration(
                               prefixIcon: const Icon(Icons.lock_outline_rounded, color: AppTheme.primaryPurple),
                               hintText: 'Password',
@@ -303,6 +306,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           child: TextFormField(
                             controller: _confirmPasswordController,
                             obscureText: _obscureConfirmPassword,
+                            style: const TextStyle(color: AppTheme.textLightPrimary),
                             decoration: InputDecoration(
                               prefixIcon: const Icon(Icons.lock_outline_rounded, color: AppTheme.primaryPurple),
                               hintText: 'Confirm Password',
