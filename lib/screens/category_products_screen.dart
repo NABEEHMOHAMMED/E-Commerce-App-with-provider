@@ -26,8 +26,11 @@ class CategoryProductsScreen extends StatelessWidget {
               color: AppTheme.bgLightSurface,
               shape: BoxShape.circle,
             ),
-            child: const Icon(Icons.arrow_back_ios_new_rounded,
-                color: AppTheme.textLightPrimary, size: 18),
+            child: const Icon(
+              Icons.arrow_back_ios_new_rounded,
+              color: AppTheme.textLightPrimary,
+              size: 18,
+            ),
           ),
         ),
         title: Text(
@@ -36,7 +39,6 @@ class CategoryProductsScreen extends StatelessWidget {
             color: AppTheme.textLightPrimary,
             fontSize: 20,
             fontWeight: FontWeight.bold,
-            
           ),
         ),
         centerTitle: true,
@@ -52,20 +54,23 @@ class CategoryProductsScreen extends StatelessWidget {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(Icons.grid_view_rounded,
-                      color: AppTheme.textLightMuted, size: 16),
+                  const Icon(
+                    Icons.grid_view_rounded,
+                    color: AppTheme.textLightMuted,
+                    size: 16,
+                  ),
                   const SizedBox(width: 4),
                   Consumer<ProductProvider>(
                     builder: (_, provider, _) {
-                      final count =
-                          provider.getProductsByCategory(category.id).length;
+                      final count = provider
+                          .getProductsByCategory(category.id)
+                          .length;
                       return Text(
                         '$count',
                         style: const TextStyle(
                           color: AppTheme.textLightPrimary,
                           fontSize: 12,
                           fontWeight: FontWeight.w700,
-                          
                         ),
                       );
                     },
@@ -78,8 +83,7 @@ class CategoryProductsScreen extends StatelessWidget {
       ),
       body: Consumer<ProductProvider>(
         builder: (ctx, productProvider, _) {
-          final products =
-              productProvider.getProductsByCategory(category.id);
+          final products = productProvider.getProductsByCategory(category.id);
 
           if (products.isEmpty) {
             return Center(
@@ -92,8 +96,11 @@ class CategoryProductsScreen extends StatelessWidget {
                       color: AppTheme.bgLightSurface,
                       shape: BoxShape.circle,
                     ),
-                    child: Icon(Icons.inventory_2_outlined,
-                        size: 50, color: AppTheme.textLightMuted),
+                    child: Icon(
+                      Icons.inventory_2_outlined,
+                      size: 50,
+                      color: AppTheme.textLightMuted,
+                    ),
                   ),
                   const SizedBox(height: 16),
                   const Text(
@@ -102,14 +109,15 @@ class CategoryProductsScreen extends StatelessWidget {
                       color: AppTheme.textLightPrimary,
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
-                      
                     ),
                   ),
                   const SizedBox(height: 6),
                   Text(
                     'No products in ${category.name} category yet.',
                     style: const TextStyle(
-                        color: AppTheme.textLightMuted, fontSize: 13),
+                      color: AppTheme.textLightMuted,
+                      fontSize: 13,
+                    ),
                   ),
                 ],
               ),

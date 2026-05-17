@@ -1,11 +1,13 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:path_provider/path_provider.dart';
 import '../models/product.dart';
 import '../models/category.dart';
 import '../services/api_service.dart';
+import '../services/web_storage.dart';
 
 class ProductProvider extends ChangeNotifier {
   // ─── Loading & Error State ──────────────────────────────────────────
@@ -255,15 +257,23 @@ class ProductProvider extends ChangeNotifier {
   // ─── Save Products to Local File (Caching) ───────────────────────────
   Future<void> _saveToDisk() async {
     try {
-      final directory = await getApplicationDocumentsDirectory();
-      final file = File('${directory.path}/products_cache.json');
+      if (kIsWeb) {
+        final String jsonString = json.encode(
+          _allProducts.map((p) => p.toJson()).toList(),
+        );
+        saveToWebStorage('products_cache', jsonString);
+        debugPrint('Products cached successfully to localStorage');
+      } else {
+        final directory = await getApplicationDocumentsDirectory();
+        final file = File('${directory.path}/products_cache.json');
 
-      final String jsonString = json.encode(
-        _allProducts.map((p) => p.toJson()).toList(),
-      );
+        final String jsonString = json.encode(
+          _allProducts.map((p) => p.toJson()).toList(),
+        );
 
-      await file.writeAsString(jsonString);
-      debugPrint(' Products cached successfully to: ${file.path}');
+        await file.writeAsString(jsonString);
+        debugPrint('Products cached successfully to: ${file.path}');
+      }
     } catch (e) {
       debugPrint('Error caching products: $e');
     }
@@ -272,20 +282,38 @@ class ProductProvider extends ChangeNotifier {
   // ─── Load Products from Local File (Offline Fallback) ─────────────────
   Future<void> _loadFromDisk() async {
     try {
-      final directory = await getApplicationDocumentsDirectory();
-      final file = File('${directory.path}/products_cache.json');
+      if (kIsWeb) {
+        final String? jsonString = loadFromWebStorage('products_cache');
+        if (jsonString != null) {
+          final List<dynamic> jsonList = json.decode(jsonString);
 
-      if (await file.exists()) {
-        final String jsonString = await file.readAsString();
-        final List<dynamic> jsonList = json.decode(jsonString);
-
-        _allProducts = jsonList.map((item) => Product.fromJson(item)).toList();
-        debugPrint(
-          ' Products loaded from cache. Count: ${_allProducts.length}',
-        );
+          _allProducts = jsonList
+              .map((item) => Product.fromJson(item))
+              .toList();
+          debugPrint(
+            'Products loaded from cache. Count: ${_allProducts.length}',
+          );
+        } else {
+          debugPrint('No cached data available in localStorage.');
+        }
       } else {
-        // _errorMessage = 'No cached data available. Showing default items.';
-        // debugPrint(' No cache file found.');
+        final directory = await getApplicationDocumentsDirectory();
+        final file = File('${directory.path}/products_cache.json');
+
+        if (await file.exists()) {
+          final String jsonString = await file.readAsString();
+          final List<dynamic> jsonList = json.decode(jsonString);
+
+          _allProducts = jsonList
+              .map((item) => Product.fromJson(item))
+              .toList();
+          debugPrint(
+            'Products loaded from cache. Count: ${_allProducts.length}',
+          );
+        } else {
+          // _errorMessage = 'No cached data available. Showing default items.';
+          // debugPrint('No cache file found.');
+        }
       }
 
       // Always ensure mock products are present
