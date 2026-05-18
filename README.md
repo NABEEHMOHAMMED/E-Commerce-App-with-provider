@@ -1,8 +1,8 @@
-# 🌊 ShopWave — Premium Flutter E-Commerce Application
+# 🌊 Flutter E-Commerce Application
 
 🌐 **Live Demo:** [e-commerce-app-nabeeh-mohammed.netlify.app](https://e-commerce-app-nabeeh-mohammed.netlify.app/)
 
-ShopWave is a high-performance, visually stunning, and feature-rich e-commerce mobile application built using the **Flutter SDK** and **Dart**. Adhering to the premium **"Aurora Glass"** UI design language, it utilizes vibrant gradients, subtle micro-animations, premium custom glassmorphic loading indicators, and modern typography to deliver a state-of-the-art shopping experience.
+ E-Commerce Application is a high-performance, visually stunning, and feature-rich e-commerce mobile application built using the **Flutter SDK** and **Dart**. Adhering to the premium **"Aurora Glass"** UI design language, it utilizes vibrant gradients, subtle micro-animations, premium custom glassmorphic loading indicators, and modern typography to deliver a state-of-the-art shopping experience.
 
 Powered by **Provider** for clean state management and integrated deeply with **Google Firebase**, ShopWave offers seamless real-time database syncing, multi-user isolation, secure cloud wishlists, and isolated shopping carts.
 
@@ -41,7 +41,7 @@ graph TD
 
 ## 🛠️ State Management Architecture
 
-ShopWave utilizes the **Provider** design pattern to decouple UI presentation from business logic. The application is initialized under a global `MultiProvider` tree to make states globally accessible yet highly responsive:
+E-Commerce Application utilizes the **Provider** design pattern to decouple UI presentation from business logic. The application is initialized under a global `MultiProvider` tree to make states globally accessible yet highly responsive:
 
 ```dart
 MultiProvider(
