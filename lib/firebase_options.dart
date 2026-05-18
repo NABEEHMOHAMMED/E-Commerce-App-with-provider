@@ -38,12 +38,12 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyDummyApiKeyWebPlaceholder1234567',
-    appId: '1:1234567890:web:abcdef123456',
-    messagingSenderId: '1234567890',
-    projectId: 'shopwave-ecommerce-app',
-    authDomain: 'shopwave-ecommerce-app.firebaseapp.com',
-    storageBucket: 'shopwave-ecommerce-app.appspot.com',
+    apiKey: 'AIzaSyAllQJe5OL6mwXfuRX8PHHVa0AD8GQpWn4',
+    appId: '1:574634640749:web:7b154c246036a76a3a4664',
+    messagingSenderId: '574634640749',
+    projectId: 'e-commerce-app-d84a1',
+    authDomain: 'e-commerce-app-d84a1.firebaseapp.com',
+    storageBucket: 'e-commerce-app-d84a1.firebasestorage.app',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
