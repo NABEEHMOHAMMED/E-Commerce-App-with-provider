@@ -1,7 +1,9 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../models/product.dart';
 
 class CartItem {
@@ -41,9 +43,21 @@ class CartProvider extends ChangeNotifier {
 
   double get totalPrice => subtotal;
 
+  StreamSubscription<User?>? _authSubscription;
+  String? _currentUserId;
+
   CartProvider() {
-    // تحميل السلة المحفوظة في الخلفية
-    Future.microtask(() => _loadFromDisk());
+    // ─── Listen to Authentication changes to isolate cart ───────────
+    _authSubscription = FirebaseAuth.instance.authStateChanges().listen((user) {
+      if (user != null) {
+        _currentUserId = user.uid;
+        _loadFromDisk();
+      } else {
+        _currentUserId = null;
+        _items = [];
+        notifyListeners();
+      }
+    });
   }
 
   void addToCart(Product product) {
@@ -98,7 +112,8 @@ class CartProvider extends ChangeNotifier {
 
   Future<File> _getCartFile() async {
     final directory = await getApplicationDocumentsDirectory();
-    return File('${directory.path}/cart.json');
+    final suffix = _currentUserId != null ? '_$_currentUserId' : '';
+    return File('${directory.path}/cart$suffix.json');
   }
 
   Future<void> _saveToDisk() async {
@@ -126,5 +141,11 @@ class CartProvider extends ChangeNotifier {
     } catch (e) {
       debugPrint('Error loading cart: $e');
     }
+  }
+
+  @override
+  void dispose() {
+    _authSubscription?.cancel();
+    super.dispose();
   }
 }
