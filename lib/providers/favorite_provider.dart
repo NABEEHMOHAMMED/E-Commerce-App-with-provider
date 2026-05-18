@@ -1,97 +1,125 @@
-import 'dart:convert';
-import 'dart:io';
+import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:path_provider/path_provider.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../models/product.dart';
 
 class FavoriteProvider extends ChangeNotifier {
   List<Product> _favorites = [];
+  StreamSubscription<QuerySnapshot>? _favoritesSubscription;
+  StreamSubscription<User?>? _authSubscription;
 
   List<Product> get favorites => _favorites;
 
   FavoriteProvider() {
-    // تحميل البيانات في الخلفية
-    Future.microtask(() => _loadFromDisk());
+    // ─── Listen to User Authentication Status ───────────────────────
+    _authSubscription = FirebaseAuth.instance.authStateChanges().listen((user) {
+      if (user != null) {
+        // User logged in: Subscribe to their Firestore favorites subcollection
+        _subscribeToFavorites(user.uid);
+      } else {
+        // User logged out: Cancel subscription and clear list
+        _unsubscribeFromFavorites();
+      }
+    });
   }
 
+  /// Checks if a product is in the favorites list
   bool isFavorite(Product product) {
     return _favorites.any((item) => item.id == product.id);
   }
 
-  void toggleFavorite(Product product) {
-    if (isFavorite(product)) {
-      _favorites.removeWhere((item) => item.id == product.id);
-      product.isFavorite = false;
-    } else {
-      _favorites.add(product);
-      product.isFavorite = true;
+  /// Toggles favorite state (set/delete in Firestore)
+  Future<void> toggleFavorite(Product product) async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      debugPrint('Cannot toggle favorite: No authenticated user.');
+      return;
     }
-    notifyListeners();
-    // حفظ البيانات فوراً عند التغيير (Exercise 2)
-    _saveToDisk();
-  }
 
-  void removeFromFavorites(String productId) {
-    _favorites.removeWhere((item) => item.id == productId);
-    notifyListeners();
-    // حفظ البيانات فوراً عند التغيير (Exercise 2)
-    _saveToDisk();
-  }
+    final docRef = FirebaseFirestore.instance
+        .collection('users')
+        .doc(user.uid)
+        .collection('favorites')
+        .doc(product.id);
 
-  // ─── عمليات التخزين المحلي (Exercise 2) ─────────────────────────────
-
-  /// الحصول على مسار الملف المخزن على الجهاز
-  Future<File> _getFavoritesFile() async {
-    final directory = await getApplicationDocumentsDirectory();
-    return File('${directory.path}/favorites.json');
-  }
-
-  /// حفظ قائمة المفضلات بصيغة JSON
-  Future<void> _saveToDisk() async {
     try {
-      final file = await _getFavoritesFile();
-      
-      // تحويل قائمة الكائنات إلى JSON (Encoding)
-      // نكتفي بالبيانات الأساسية فقط كما هو مطلوب في التمرين 2
-      final List<Map<String, dynamic>> minimalList = _favorites.map((p) => {
-        'id': p.id,
-        'title': p.name,
-        'price': p.price,
-        'image': p.imageUrl,
-      }).toList();
-      
-      final String jsonString = json.encode(minimalList);
-      
-      await file.writeAsString(jsonString);
-      debugPrint('Favorites saved successfully to: ${file.path}');
+      if (isFavorite(product)) {
+        // ─── Delete document from Firestore ─────────────────────────
+        await docRef.delete();
+        debugPrint('Removed product ${product.id} from Firestore Favorites.');
+      } else {
+        // ─── Add/Set document in Firestore ──────────────────────────
+        // Set all properties via product.toMap()
+        await docRef.set(product.toMap());
+        debugPrint('Added product ${product.id} to Firestore Favorites.');
+      }
     } catch (e) {
-      debugPrint('Error saving favorites: $e');
+      debugPrint('Error toggling favorite in Firestore: $e');
     }
   }
 
-  /// تحميل قائمة المفضلات من الجهاز عند تشغيل التطبيق
-  Future<void> _loadFromDisk() async {
+  /// Removes a product from favorites by ID
+  Future<void> removeFromFavorites(String productId) async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+
     try {
-      final file = await _getFavoritesFile();
-      
-      if (await file.exists()) {
-        final String jsonString = await file.readAsString();
-        
-        // تحويل JSON إلى قائمة كائنات (Decoding)
-        final List<dynamic> jsonList = json.decode(jsonString);
-        
-        _favorites = jsonList.map((item) {
-          final product = Product.fromJson(item);
-          product.isFavorite = true; // تأكيد أنها مفضلة
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .collection('favorites')
+          .doc(productId)
+          .delete();
+      debugPrint('Deleted $productId from Firestore Favorites.');
+    } catch (e) {
+      debugPrint('Error removing favorite from Firestore: $e');
+    }
+  }
+
+  // ─── Firestore Subscriptions ────────────────────────────────────────
+
+  /// Subscribe to user's real-time favorites stream
+  void _subscribeToFavorites(String userId) {
+    _unsubscribeFromFavorites(); // Cancel any existing stream first
+
+    debugPrint('Subscribing to Firestore favorites stream for user: $userId');
+    _favoritesSubscription = FirebaseFirestore.instance
+        .collection('users')
+        .doc(userId)
+        .collection('favorites')
+        .snapshots()
+        .listen(
+      (snapshot) {
+        _favorites = snapshot.docs.map((doc) {
+          // Map each document back to a Product instance
+          final product = Product.fromDoc(doc);
+          product.isFavorite = true; // Mark as favorite
           return product;
         }).toList();
         
         notifyListeners();
-        debugPrint('Favorites loaded successfully. Count: ${_favorites.length}');
-      }
-    } catch (e) {
-      debugPrint('Error loading favorites: $e');
-      // التعامل مع الأخطاء بهدوء كما هو مطلوب
-    }
+        debugPrint('Firestore Favorites updated dynamically. Count: ${_favorites.length}');
+      },
+      onError: (error) {
+        debugPrint('Error listening to favorites stream: $error');
+      },
+    );
+  }
+
+  /// Unsubscribe and clean up resources
+  void _unsubscribeFromFavorites() {
+    _favoritesSubscription?.cancel();
+    _favoritesSubscription = null;
+    _favorites = [];
+    notifyListeners();
+    debugPrint('Unsubscribed from favorites stream.');
+  }
+
+  @override
+  void dispose() {
+    _authSubscription?.cancel();
+    _favoritesSubscription?.cancel();
+    super.dispose();
   }
 }

@@ -56,9 +56,7 @@ class CategoriesScreen extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 16),
               height: 52,
               decoration: BoxDecoration(
-                color: Theme.of(context).brightness == Brightness.dark
-                    ? AppTheme.bgSurface
-                    : AppTheme.bgLightSurface,
+                color: AppTheme.bgLightSurface,
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(
                   color: AppTheme.primaryPurple.withValues(alpha: 0.1),
@@ -89,9 +87,7 @@ class CategoriesScreen extends StatelessWidget {
                       decoration: InputDecoration(
                         hintText: 'Search categories...',
                         hintStyle: TextStyle(
-                          color: Theme.of(context).brightness == Brightness.dark
-                              ? AppTheme.textLightMuted
-                              : AppTheme.textLightMuted.withValues(alpha: 0.6),
+                          color: AppTheme.textLightMuted.withValues(alpha: 0.6),
                           fontSize: 14,
                         ),
                         border: InputBorder.none,
@@ -102,10 +98,8 @@ class CategoriesScreen extends StatelessWidget {
                         isDense: true,
                         contentPadding: EdgeInsets.zero,
                       ),
-                      style: TextStyle(
-                        color: Theme.of(context).brightness == Brightness.dark
-                            ? Colors.white
-                            : AppTheme.textLightPrimary,
+                      style: const TextStyle(
+                        color: AppTheme.textLightPrimary,
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
                       ),
