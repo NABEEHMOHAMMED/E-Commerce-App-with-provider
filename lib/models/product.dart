@@ -46,12 +46,17 @@ class Product {
 
   /// Creates Product from JSON (for loading from cache)
   factory Product.fromJson(Map<String, dynamic> json) {
+    final id = json['id']?.toString() ?? '';
+    String imageUrl = json['image'] ?? '';
+    if (id == 'm1' && imageUrl.contains('da61225697cc')) {
+      imageUrl = 'https://store.storeimages.cdn-apple.com/1/as-images.apple.com/is/MGFQ4_AV2?wid=2000&hei=2000&fmt=jpeg&qlt=90&.v=WlBWbGdIeUx1NGF1d0FHRnE2VjFSaVRkTXNZOFJZTitTVFE0NHl0VW5Cb0YwVmtIbGRkS25RMVpBRlo0bk5DUUEvRCtJbFJ4anJIU2grclk0TFVlOUE';
+    }
     return Product(
-      id: json['id']?.toString() ?? '',
+      id: id,
       name: json['title'] ?? json['name'] ?? 'Unknown Product',
       categoryId: json['category'] ?? 'others',
       price: (json['price'] as num?)?.toDouble() ?? 0.0,
-      imageUrl: json['image'] ?? '',
+      imageUrl: imageUrl,
       description: json['description'] ?? '',
       rating: (json['rating'] as num?)?.toDouble() ?? 
           (json['rating'] is Map ? (json['rating']['rate'] as num?)?.toDouble() : 4.5) ?? 
@@ -81,6 +86,10 @@ class Product {
   /// Creates Product from a Cloud Firestore DocumentSnapshot
   factory Product.fromDoc(DocumentSnapshot doc) {
     final data = doc.data() as Map<String, dynamic>? ?? {};
+    String imageUrl = data['imageUrl'] ?? data['image'] ?? '';
+    if (doc.id == 'm1' && imageUrl.contains('da61225697cc')) {
+      imageUrl = 'https://store.storeimages.cdn-apple.com/1/as-images.apple.com/is/MGFQ4_AV2?wid=2000&hei=2000&fmt=jpeg&qlt=90&.v=WlBWbGdIeUx1NGF1d0FHRnE2VjFSaVRkTXNZOFJZTitTVFE0NHl0VW5Cb0YwVmtIdsS25RMVpBRlo0bk5DUUEvRCtJbFJ4anJIU2grclk0TFVlOUE';
+    }
     return Product(
       id: doc.id,
       name: data['name'] ?? data['title'] ?? 'Unknown Product',
@@ -89,7 +98,7 @@ class Product {
       oldPrice: data['oldPrice'] != null ? (data['oldPrice'] as num).toDouble() : null,
       discountPercentage: data['discountPercentage'] as int?,
       timeLeft: data['timeLeft'] as String?,
-      imageUrl: data['imageUrl'] ?? data['image'] ?? '',
+      imageUrl: imageUrl,
       description: data['description'] ?? '',
       rating: (data['rating'] as num?)?.toDouble() ?? 4.5,
     );
