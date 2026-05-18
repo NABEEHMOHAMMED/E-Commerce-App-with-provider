@@ -106,6 +106,20 @@ class ProductProvider extends ChangeNotifier {
 
               // Backup to local disk cache for instant startup next time
               _saveToDisk();
+
+              // Automatically correct/update the m1 image URL directly in Firebase Firestore if it still has the old URL
+              try {
+                final m1Doc = snapshot.docs.firstWhere((doc) => doc.id == 'm1');
+                final m1Data = m1Doc.data() as Map<String, dynamic>? ?? {};
+                final currentUrl = m1Data['imageUrl'] as String? ?? '';
+                if (currentUrl.contains('da61225697cc')) {
+                  FirebaseFirestore.instance.collection('products').doc('m1').update({
+                    'imageUrl': 'https://store.storeimages.cdn-apple.com/1/as-images.apple.com/is/MGFQ4_AV2?wid=2000&hei=2000&fmt=jpeg&qlt=90&.v=WlBWbGdIeUx1NGF1d0FHRnE2VjFSaVRkTXNZOFJZTitTVFE0NHl0VW5Cb0YwVmtIbGRkS25RMVpBRlo0bk5DUUEvRCtJbFJ4anJIU2grclk0TFVlOUE'
+                  }).then((_) {
+                    debugPrint('Automatically corrected m1 image URL in Firebase Firestore!');
+                  });
+                }
+              } catch (_) {}
             } else {
               // If Firestore starts out empty, seed it automatically with mock products!
               _seedMockProductsToFirestore();
@@ -361,7 +375,7 @@ class ProductProvider extends ChangeNotifier {
     return [
       Product(
         id: 'm1',
-        name: 'iPhone 15 Pro Max',
+        name: 'iPhone 17 Pro Max',
         categoryId: 'smartphones',
         price: 1199.99,
         oldPrice: 1299.99,

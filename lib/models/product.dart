@@ -88,7 +88,7 @@ class Product {
     final data = doc.data() as Map<String, dynamic>? ?? {};
     String imageUrl = data['imageUrl'] ?? data['image'] ?? '';
     if (doc.id == 'm1' && imageUrl.contains('da61225697cc')) {
-      imageUrl = 'https://store.storeimages.cdn-apple.com/1/as-images.apple.com/is/MGFQ4_AV2?wid=2000&hei=2000&fmt=jpeg&qlt=90&.v=WlBWbGdIeUx1NGF1d0FHRnE2VjFSaVRkTXNZOFJZTitTVFE0NHl0VW5Cb0YwVmtIdsS25RMVpBRlo0bk5DUUEvRCtJbFJ4anJIU2grclk0TFVlOUE';
+      imageUrl = 'https://store.storeimages.cdn-apple.com/1/as-images.apple.com/is/MGFQ4_AV2?wid=2000&hei=2000&fmt=jpeg&qlt=90&.v=WlBWbGdIeUx1NGF1d0FHRnE2VjFSaVRkTXNZOFJZTitTVFE0NHl0VW5Cb0YwVmtIbGRkS25RMVpBRlo0bk5DUUEvRCtJbFJ4anJIU2grclk0TFVlOUE';
     }
     return Product(
       id: doc.id,
