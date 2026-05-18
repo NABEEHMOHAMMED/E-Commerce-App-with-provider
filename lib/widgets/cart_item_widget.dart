@@ -7,11 +7,12 @@ class CartItemWidget extends StatelessWidget {
   final VoidCallback onAdd;
   final VoidCallback onRemove;
 
-  const CartItemWidget(
-      {super.key,
-      required this.item,
-      required this.onAdd,
-      required this.onRemove});
+  const CartItemWidget({
+    super.key,
+    required this.item,
+    required this.onAdd,
+    required this.onRemove,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -19,7 +20,7 @@ class CartItemWidget extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: const Color.fromARGB(255, 239, 236, 236),
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
@@ -97,9 +98,9 @@ class CartItemWidget extends StatelessWidget {
             ),
             child: Column(
               children: [
-GestureDetector(
-                   onTap: onAdd,
-                   child: Container(
+                GestureDetector(
+                  onTap: onAdd,
+                  child: Container(
                     width: 28,
                     height: 28,
                     decoration: BoxDecoration(

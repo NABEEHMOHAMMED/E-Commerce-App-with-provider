@@ -13,14 +13,16 @@ class CategoryCard extends StatelessWidget {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.primaryPurple.withValues(alpha: 0.1),
+            const Color.fromARGB(255, 117, 99, 252).withValues(alpha: 0.1),
             AppTheme.primaryBlue.withValues(alpha: 0.05),
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppTheme.primaryPurple.withValues(alpha: 0.15)),
+        border: Border.all(
+          color: AppTheme.primaryPurple.withValues(alpha: 0.15),
+        ),
         boxShadow: [
           BoxShadow(
             color: AppTheme.primaryPurple.withValues(alpha: 0.08),
@@ -35,7 +37,9 @@ class CategoryCard extends StatelessWidget {
             SnackBar(
               content: Text('${category.name} selected'),
               backgroundColor: AppTheme.primaryPurple,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
               behavior: SnackBarBehavior.floating,
             ),
           );
@@ -71,7 +75,10 @@ class CategoryCard extends StatelessWidget {
               ),
               const SizedBox(height: 6),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 3,
+                ),
                 decoration: BoxDecoration(
                   color: AppTheme.primaryPurple.withValues(alpha: 0.08),
                   borderRadius: BorderRadius.circular(10),

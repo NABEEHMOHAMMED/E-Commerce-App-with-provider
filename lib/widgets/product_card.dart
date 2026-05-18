@@ -51,14 +51,17 @@ class ProductCard extends StatelessWidget {
                           child: CircularProgressIndicator(
                             strokeWidth: 2,
                             valueColor: AlwaysStoppedAnimation<Color>(
-                                AppTheme.primaryPurple),
+                              AppTheme.primaryPurple,
+                            ),
                           ),
                         ),
                       ),
                       errorWidget: (context, url, error) => Container(
                         color: AppTheme.bgLightSurface,
-                        child: const Icon(Icons.image_not_supported,
-                            color: AppTheme.textLightMuted),
+                        child: const Icon(
+                          Icons.image_not_supported,
+                          color: AppTheme.textLightMuted,
+                        ),
                       ),
                     ),
                   ),
@@ -70,7 +73,9 @@ class ProductCard extends StatelessWidget {
                     left: 8,
                     child: Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 6, vertical: 3),
+                        horizontal: 6,
+                        vertical: 3,
+                      ),
                       decoration: BoxDecoration(
                         gradient: const LinearGradient(
                           colors: [AppTheme.neonRed, Color(0xFFFF6B6B)],
@@ -163,15 +168,18 @@ class ProductCard extends StatelessWidget {
                       ),
                     ],
                   ),
-                  
+
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       if (product.timeLeft != null) ...[
                         Row(
                           children: [
-                            const Icon(Icons.access_time_rounded,
-                                color: AppTheme.accentOrange, size: 9),
+                            const Icon(
+                              Icons.access_time_rounded,
+                              color: AppTheme.accentOrange,
+                              size: 9,
+                            ),
                             const SizedBox(width: 3),
                             Text(
                               product.timeLeft!,
@@ -212,8 +220,11 @@ class ProductCard extends StatelessWidget {
                           Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              const Icon(Icons.star_rounded,
-                                  color: AppTheme.neonYellow, size: 10),
+                              const Icon(
+                                Icons.star_rounded,
+                                color: AppTheme.neonYellow,
+                                size: 10,
+                              ),
                               const SizedBox(width: 1),
                               Text(
                                 '${product.rating}',
@@ -236,7 +247,7 @@ class ProductCard extends StatelessWidget {
         ],
       ),
     );
-    }
+  }
 
   Color _getCategoryColor(String categoryId) {
     const map = {
@@ -254,7 +265,7 @@ class ProductCard extends StatelessWidget {
       'accessories': Color(0xFF16A085),
       'sports': Color(0xFF27AE60),
       'groceries': Color(0xFFF39C12),
-      'others': AppTheme.primaryPurple,
+      'others': Color.fromARGB(255, 104, 88, 229),
     };
     return map[categoryId] ?? AppTheme.primaryPurple;
   }
