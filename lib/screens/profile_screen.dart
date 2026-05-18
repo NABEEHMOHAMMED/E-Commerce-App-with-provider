@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:provider/provider.dart';
+import '../providers/navigation_provider.dart';
 import '../theme/app_theme.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -205,6 +207,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             TextButton(
                               onPressed: () async {
                                 Navigator.of(ctx).pop();
+                                if (context.mounted) {
+                                  Provider.of<NavigationProvider>(context, listen: false).goHome();
+                                }
                                 await FirebaseAuth.instance.signOut();
                               },
                               child: const Text('Log Out', style: TextStyle(color: AppTheme.neonRed)),

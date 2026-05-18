@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:provider/provider.dart';
+import '../providers/navigation_provider.dart';
 import '../theme/app_theme.dart';
 
 class SignUpScreen extends StatefulWidget {
@@ -44,6 +46,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
       await credential.user?.updateDisplayName(_nameController.text.trim());
 
       if (mounted) {
+        Provider.of<NavigationProvider>(context, listen: false).goHome();
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: const Text('Account created successfully! Welcome to ShopWave!'),

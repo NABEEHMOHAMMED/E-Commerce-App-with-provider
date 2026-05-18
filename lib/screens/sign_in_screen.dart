@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:provider/provider.dart';
+import '../providers/navigation_provider.dart';
 import '../theme/app_theme.dart';
 import 'sign_up_screen.dart';
 
@@ -36,6 +38,7 @@ class _SignInScreenState extends State<SignInScreen> {
         password: _passwordController.text.trim(),
       );
       if (mounted) {
+        Provider.of<NavigationProvider>(context, listen: false).goHome();
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: const Text('Logged in successfully!'),
