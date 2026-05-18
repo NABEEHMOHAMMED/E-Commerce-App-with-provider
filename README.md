@@ -91,6 +91,5 @@ MultiProvider(
 *   **State Management:** Provider
 *   **Authentication:** Firebase Auth
 *   **Database:** Cloud Firestore
-*   **Local Caching:** Path Provider & SQFLite FFI (Desktop Support)
 *   **Device Context:** Connectivity Plus (Internet detection & Fallbacks)
 *   **Design Tokens:** Google Fonts (Outfit, Inter), Custom HSL Palette, Linear Gradients, Glassmorphism Cards.
